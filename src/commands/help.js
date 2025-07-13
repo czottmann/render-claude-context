@@ -15,7 +15,7 @@ CREATE COMMAND:
                            • global: ~/.gemini/ (single collated file)
                            • project: current directory (single collated file)
                            • origin: next to each CLAUDE.md (individual files)
-                           Default: project
+                           Default: origin
     --filename <name>      Output filename (default: CLAUDE-derived.md)
 
   Examples:
@@ -33,7 +33,6 @@ SETUP COMMAND:
   so Gemini CLI auto-loads the context file on startup.
 
   Options:
-    --output-folder <mode>  Output folder mode: global, project (origin not applicable)
     --filename <name>      Output filename (default: CLAUDE-derived.md)
 
   Examples:
@@ -50,7 +49,6 @@ TEARDOWN COMMAND:
   so Gemini CLI stops auto-loading the context file.
 
   Options:
-    --output-folder <mode>  Output folder mode: global, project (origin not applicable)
     --filename <name>      Output filename (default: CLAUDE-derived.md)
 
   Examples:
@@ -92,8 +90,8 @@ USAGE:
 
 COMMANDS:
   create     Generate processed context files with resolved imports
-  setup      Add filename to Gemini contextFileName array for auto-loading
-  teardown   Remove filename from Gemini contextFileName array
+  setup      Add filename to ~/.gemini/settings.json contextFileName array for auto-loading
+  teardown   Remove filename from ~/.gemini/settings.json contextFileName array
   cleanup    Delete generated context files from filesystem
   help       Show usage instructions
 

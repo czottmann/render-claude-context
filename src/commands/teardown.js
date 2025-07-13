@@ -11,10 +11,6 @@ function teardownCommand(options) {
       process.exit(1);
     }
 
-    if (options.outputFolder === "origin") {
-      console.log("Teardown command not applicable for origin mode");
-      return;
-    }
 
     const settingsPath = path.join(
       os.homedir(),
@@ -35,11 +31,18 @@ function teardownCommand(options) {
       process.exit(1);
     }
 
-    if (
-      !settings.contextFileName ||
-      !Array.isArray(settings.contextFileName)
-    ) {
-      console.log("No contextFileName array found in Gemini settings");
+    if (!settings.contextFileName) {
+      console.log("No contextFileName found in Gemini settings");
+      return;
+    }
+
+    // Ensure contextFileName is always an array
+    if (typeof settings.contextFileName === 'string') {
+      settings.contextFileName = [settings.contextFileName];
+    }
+
+    if (!Array.isArray(settings.contextFileName)) {
+      console.log("Invalid contextFileName format in Gemini settings");
       return;
     }
 

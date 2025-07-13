@@ -29,7 +29,7 @@ function main() {
     .option(
       "--output-folder <mode>",
       "Output folder mode: global, project, or origin",
-      "project",
+      "origin",
     )
     .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
     .action(createCommand);
@@ -37,12 +37,7 @@ function main() {
   program
     .command("setup")
     .description(
-      "Add filename to Gemini contextFileName array for auto-loading",
-    )
-    .option(
-      "--output-folder <mode>",
-      "Output folder mode: global, project, or origin",
-      "project",
+      "Add filename to ~/.gemini/settings.json contextFileName array for auto-loading",
     )
     .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
     .action(setupCommand);
@@ -50,11 +45,6 @@ function main() {
   program
     .command("teardown")
     .description("Remove filename from Gemini contextFileName array")
-    .option(
-      "--output-folder <mode>",
-      "Output folder mode: global, project, or origin",
-      "project",
-    )
     .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
     .action(teardownCommand);
 
@@ -64,7 +54,7 @@ function main() {
     .option(
       "--output-folder <mode>",
       "Output folder mode: global, project, or origin",
-      "project",
+      "origin",
     )
     .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
     .action(cleanupCommand);

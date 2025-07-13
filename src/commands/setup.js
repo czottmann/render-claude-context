@@ -11,10 +11,6 @@ function setupCommand(options) {
       process.exit(1);
     }
 
-    if (options.outputFolder === "origin") {
-      console.log("Setup command not applicable for origin mode");
-      return;
-    }
 
     const settingsPath = path.join(
       os.homedir(),
@@ -27,8 +23,11 @@ function setupCommand(options) {
       settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
     }
 
+    // Ensure contextFileName is always an array
     if (!settings.contextFileName) {
       settings.contextFileName = [];
+    } else if (typeof settings.contextFileName === 'string') {
+      settings.contextFileName = [settings.contextFileName];
     }
 
     // Always add the specified filename to settings
