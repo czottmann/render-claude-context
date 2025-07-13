@@ -18,9 +18,9 @@ Claude Code uses `CLAUDE.md` files which contains context for the tool. From [An
 > Any parent of the directory where you run `claude`. This is most useful for monorepos, where you might run claude from `root/foo`, and have CLAUDE.md files in both `root/CLAUDE.md` and `root/foo/CLAUDE.md`. Both of these will be pulled into context automatically […]
 > Your home folder (`~/.claude/CLAUDE.md`), which applies it to all your *claude* sessions
 
-Gemini CLI works mostly the same way, but the file name is `GEMINI.md`, and the home folder is `~/.gemini/`.
+Gemini CLI works mostly the same way, but the file name is `GEMINI.md`, and the home folder is `~/.gemini/`. Sure, I can add `CLAUDE.md` to the list of Gemini's auto-read context files (see [config docs about `contextFileName`](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md#available-settings-in-settingsjson)), but that helps only partially because the tools differ in one big way:
 
-Both Claude Code and Gemini can `@`-import other files, meaning they will transpose `@./some/file.md` directives in their context file with the contents of the referenced file. Here, they work differently: Claude Code will happily import files from anywhere on your device while Gemini only allows files in the current directory. And that's my main issue with it!
+Both Claude Code and Gemini can `@`-import other files, meaning they will transpose `@./some/file.md` directives in their context file with the contents of the referenced file. BUT: Claude Code will happily import files from anywhere on your device while Gemini **only** allows files in the current directory. And that's my main issue with it!
 
 Because I usually mix and match my rules, depending on the project, I put them in a separate folder on my machine. Claude can use them. Gemini can, too, but only when I copy them to the project, and then `@`-import that local copy.
 
