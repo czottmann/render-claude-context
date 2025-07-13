@@ -8,6 +8,24 @@ This node.js CLI tool processes CLAUDE.md files with hierarchical collection and
 
 These files can then be used as context for Gemini.
 
+## But why?
+
+Claude Code uses `CLAUDE.md` files which contains context for the tool. From [Anthropic's docs](https://www.anthropic.com/engineering/claude-code-best-practices):
+
+> You can place `CLAUDE.md` files in several locations:
+>
+> The root of your repo, or wherever you run `claude` from (the most common usage). Name it `CLAUDE.md` and check it into git so that you can share it across sessions and with your team […]
+> Any parent of the directory where you run `claude`. This is most useful for monorepos, where you might run claude from `root/foo`, and have CLAUDE.md files in both `root/CLAUDE.md` and `root/foo/CLAUDE.md`. Both of these will be pulled into context automatically […]
+> Your home folder (`~/.claude/CLAUDE.md`), which applies it to all your *claude* sessions
+
+Gemini CLI works mostly the same way, but the file name is `GEMINI.md`, and the home folder is `~/.gemini/`.
+
+Both Claude Code and Gemini can `@`-import other files, meaning they will transpose `@./some/file.md` directives in their context file with the contents of the referenced file. Here, they work differently: Claude Code will happily import files from anywhere on your device while Gemini only allows files in the current directory. And that's my main issue with it!
+
+Because I usually mix and match my rules, depending on the project, I put them in a separate folder on my machine. Claude can use them. Gemini can, too, but only when I copy them to the project, and then `@`-import that local copy.
+
+So in order to streamline my dev environment, I decided to keep only my `CLAUDE.md`'s in order, and make Gemini play ball. That means that I only have to set up context once (for Claude) – and Gemini reuses it without me having to copy/symlink rules and manually copy/rewriting context files.
+
 ## Example
 
 ```bash
@@ -17,15 +35,6 @@ claude-context-render setup --filename CLAUDE-derived.md
 # Every day use: Generate context files on the fly, call Gemini, then clean up
 claude-context-render create; gemini; claude-context-render cleanup
 ```
-
-## Key Files
-
-- **Main Entry Point**: `index.js` (Commander.js integration, commands 11-75)
-- **File Collection**: `src/fileCollector.js` (directory traversal 5-28, ~/.claude handling 21-25)
-- **Import Resolution**: `src/importResolver.js` (recursive @path processing 5-40, tilde expansion 15-16)
-- **File Processing**: `src/fileProcessor.js` (content generation 25-46, output modes 62-76)
-- **Commands**: `src/commands/` (create, setup, teardown, cleanup implementations)
-- **Configuration**: `package.json` (binary claude-context-render 6-8, dependencies 20-22)
 
 ## Quick Build Commands
 
@@ -47,9 +56,14 @@ claude-context-render setup --filename my-context.md
 claude-context-render teardown --filename my-context.md
 ```
 
-## Author
+## Key Files
 
-Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com/czottmann
+- **Main Entry Point**: `index.js` (Commander.js integration, commands 11-75)
+- **File Collection**: `src/fileCollector.js` (directory traversal 5-28, ~/.claude handling 21-25)
+- **Import Resolution**: `src/importResolver.js` (recursive @path processing 5-40, tilde expansion 15-16)
+- **File Processing**: `src/fileProcessor.js` (content generation 25-46, output modes 62-76)
+- **Commands**: `src/commands/` (create, setup, teardown, cleanup implementations)
+- **Configuration**: `package.json` (binary claude-context-render 6-8, dependencies 20-22)
 
 ## Documentation
 
@@ -62,3 +76,8 @@ Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com
 - **[Files Catalog](docs/files.md)** - Complete file organization, dependencies, naming conventions
 
 LLMs will find specific file paths, line numbers for key functions, actual code examples from the codebase, and practical guidance for understanding and extending the hierarchical file processing system.
+
+## Author
+
+Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com/czottmann
+
