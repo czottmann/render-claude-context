@@ -2,7 +2,21 @@
 
 # claude-context-render
 
-Node.js CLI tool that processes CLAUDE.md files with hierarchical collection and recursive `@` import resolution. Walks directory tree from current to home directory, collecting all CLAUDE.md files and processing them with file import resolution.
+Tired of maintaining two sets of context and rules for Claude Code and Gemini CLI?
+
+This node.js CLI tool processes CLAUDE.md files with hierarchical collection and recursive `@` import resolution. Walks directory tree from current to home directory, collecting all CLAUDE.md files and processing them with file import resolution. Saves processed context files with resolved imports next to the original CLAUDE.md files.
+
+These files can then be used as context for Gemini.
+
+## Example
+
+```bash
+# One-time setup, tells Gemini to use context files with that name
+claude-context-render setup --filename CLAUDE-derived.md
+
+# Every day use: Generate context files on the fly, call Gemini, then clean up
+claude-context-render create; gemini; claude-context-render cleanup
+```
 
 ## Key Files
 
@@ -19,19 +33,23 @@ Node.js CLI tool that processes CLAUDE.md files with hierarchical collection and
 # Install dependencies and run
 npm install && node index.js help
 
-# Global installation  
+# Global installation
 npm install -g . && claude-context-render help
 
 # Create context files (default: next to each CLAUDE.md)
-node index.js create
+claude-context-render create
 
 # Create with specific mode and filename
-node index.js create --output-folder global --filename my-context.md
+claude-context-render create --output-folder global --filename my-context.md
 
 # Gemini integration setup/teardown
-node index.js setup --filename CLAUDE-derived.md
-node index.js teardown --filename CLAUDE-derived.md
+claude-context-render setup --filename my-context.md
+claude-context-render teardown --filename my-context.md
 ```
+
+## Author
+
+Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com/czottmann
 
 ## Documentation
 
@@ -39,7 +57,7 @@ node index.js teardown --filename CLAUDE-derived.md
 - **[Architecture](docs/architecture.md)** - Component map, data flow, key functions with line numbers
 - **[Build System](docs/build-system.md)** - NPM workflows, dependency setup, platform configuration
 - **[Testing](docs/testing.md)** - Module exports for unit testing, CLI integration testing
-- **[Development](docs/development.md)** - Code patterns, Commander.js structure, debugging workflows  
+- **[Development](docs/development.md)** - Code patterns, Commander.js structure, debugging workflows
 - **[Deployment](docs/deployment.md)** - Installation methods, output modes, external system integration
 - **[Files Catalog](docs/files.md)** - Complete file organization, dependencies, naming conventions
 
