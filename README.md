@@ -20,12 +20,12 @@ claude-context-render create; gemini; claude-context-render cleanup
 
 ## Key Files
 
-**Main Entry Point** - `index.js` (Commander.js integration, commands 11-75)
-**File Collection** - `src/fileCollector.js` (directory traversal 5-28, ~/.claude handling 21-25)
-**Import Resolution** - `src/importResolver.js` (recursive @path processing 5-40, tilde expansion 15-16)
-**File Processing** - `src/fileProcessor.js` (content generation 25-46, output modes 62-76)
-**Commands** - `src/commands/` (create, setup, teardown, cleanup implementations)
-**Configuration** - `package.json` (binary claude-context-render 6-8, dependencies 20-22)
+- **Main Entry Point**: `index.js` (Commander.js integration, commands 11-75)
+- **File Collection**: `src/fileCollector.js` (directory traversal 5-28, ~/.claude handling 21-25)
+- **Import Resolution**: `src/importResolver.js` (recursive @path processing 5-40, tilde expansion 15-16)
+- **File Processing**: `src/fileProcessor.js` (content generation 25-46, output modes 62-76)
+- **Commands**: `src/commands/` (create, setup, teardown, cleanup implementations)
+- **Configuration**: `package.json` (binary claude-context-render 6-8, dependencies 20-22)
 
 ## Quick Build Commands
 
