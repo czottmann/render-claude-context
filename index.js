@@ -244,6 +244,11 @@ For more details, see: https://github.com/anthropics/claude-code
     .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
     .action((options) => {
       try {
+        if (options.filename === "CLAUDE.md") {
+          console.error("Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files");
+          process.exit(1);
+        }
+
         if (options.outputFolder === "origin") {
           const filesCreated = handleOriginMode(options.filename);
           console.log(`Created ${filesCreated.length} context file(s):`);
@@ -277,6 +282,11 @@ For more details, see: https://github.com/anthropics/claude-code
     .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
     .action((options) => {
       try {
+        if (options.filename === "CLAUDE.md") {
+          console.error("Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files");
+          process.exit(1);
+        }
+
         if (options.outputFolder === "origin") {
           console.log("Setup command not applicable for origin mode");
           return;
@@ -336,6 +346,11 @@ For more details, see: https://github.com/anthropics/claude-code
     .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
     .action((options) => {
       try {
+        if (options.filename === "CLAUDE.md") {
+          console.error("Error: Cannot use 'CLAUDE.md' as filename to prevent accidental deletion of source files");
+          process.exit(1);
+        }
+
         let filesRemoved = [];
 
         if (options.outputFolder === "origin") {
