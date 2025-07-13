@@ -4,7 +4,7 @@
 
 Tired of maintaining two sets of context and rules for Claude Code and Gemini CLI?
 
-This node.js CLI tool processes CLAUDE.md files with hierarchical collection and recursive `@` import resolution. Walks directory tree from current to home directory, collecting all CLAUDE.md files and processing them with file import resolution. Saves processed context files with resolved imports next to the original CLAUDE.md files.
+This node.js CLI tool processes CLAUDE.md files with hierarchical collection and recursive `@`-import resolution. Walks directory tree from current to home directory, collecting all CLAUDE.md files and processing them with file import resolution. Saves processed context files with resolved imports next to the original CLAUDE.md files.
 
 These files can then be used as context for Gemini.
 
