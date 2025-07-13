@@ -6,6 +6,7 @@ const setupCommand = require("./src/commands/setup");
 const teardownCommand = require("./src/commands/teardown");
 const cleanupCommand = require("./src/commands/cleanup");
 const helpCommand = require("./src/commands/help");
+const { validateFilename } = require("./src/utils/validation");
 
 function main() {
   const program = new Command();
@@ -31,7 +32,7 @@ function main() {
       "Output folder mode: global, project, or origin",
       "origin",
     )
-    .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
+    .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
     .action(createCommand);
 
   program
@@ -39,13 +40,13 @@ function main() {
     .description(
       "Add filename to ~/.gemini/settings.json contextFileName array for auto-loading",
     )
-    .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
+    .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
     .action(setupCommand);
 
   program
     .command("teardown")
     .description("Remove filename from Gemini contextFileName array")
-    .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
+    .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
     .action(teardownCommand);
 
   program
@@ -56,7 +57,7 @@ function main() {
       "Output folder mode: global, project, or origin",
       "origin",
     )
-    .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
+    .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
     .action(cleanupCommand);
 
   program.parse();

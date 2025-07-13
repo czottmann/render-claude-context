@@ -2,12 +2,6 @@ const { generateContextContent, getOutputPath, writeToFile, handleOriginMode } =
 
 function createCommand(options) {
   try {
-    if (options.filename === "CLAUDE.md") {
-      console.error(
-        "Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files",
-      );
-      process.exit(1);
-    }
 
     if (options.outputFolder === "origin") {
       const filesCreated = handleOriginMode(options.filename);

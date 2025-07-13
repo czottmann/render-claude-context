@@ -4,12 +4,6 @@ const os = require("os");
 
 function setupCommand(options) {
   try {
-    if (options.filename === "CLAUDE.md") {
-      console.error(
-        "Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files",
-      );
-      process.exit(1);
-    }
 
 
     const settingsPath = path.join(

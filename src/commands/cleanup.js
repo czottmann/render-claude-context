@@ -6,12 +6,6 @@ const { getOutputPath } = require("../fileProcessor");
 
 function cleanupCommand(options) {
   try {
-    if (options.filename === "CLAUDE.md") {
-      console.error(
-        "Error: Cannot use 'CLAUDE.md' as filename to prevent accidental deletion of source files",
-      );
-      process.exit(1);
-    }
 
     let filesRemoved = [];
 
