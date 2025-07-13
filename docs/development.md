@@ -1,104 +1,178 @@
-<!-- Generated: 2025-07-12 20:30:00 UTC -->
+<!-- Generated: 2025-07-13 10:45:00 UTC -->
 
 # Development
 
-The codebase follows Node.js conventions with functional programming patterns and comprehensive error handling. Code style emphasizes readability and reliability using built-in modules only. Development workflow centers around the single-file architecture with modular function design.
+The codebase follows Node.js conventions with a modular architecture and comprehensive CLI design. The system emphasizes separation of concerns through dedicated modules for file collection, processing, import resolution, and command handling. Development workflow centers around Commander.js CLI structure with functional programming patterns and robust error handling.
 
 ## Code Style
 
-**Function Organization** - Pure functions with clear single responsibilities
-**Error Handling** - Graceful degradation preserving non-existent imports as literal text
-**Variable Naming** - Descriptive names: `collectClaudeFiles`, `resolveImports`, `processFiles`
+**Module Organization** - Clear separation of concerns with dedicated modules in `src/` directory
+**Error Handling** - Try-catch blocks with graceful degradation and user-friendly error messages
+**Variable Naming** - Descriptive names following camelCase: `collectClaudeFiles`, `resolveImports`, `generateContextContent`
+**Function Structure** - Pure functions with single responsibilities and explicit parameter handling
 
-**Import Resolution Pattern** - `index.js` (lines 32-67):
+**Commander.js CLI Pattern** - `index.js` (lines 11-64):
 ```javascript
-const importRegex = /@([^\s\n]+)/g;
-return text.replace(importRegex, (match, importPath) => {
-  // Path resolution with tilde expansion
-  if (importPath.startsWith("~/")) {
-    fullPath = path.join(os.homedir(), importPath.slice(2));
-  } else {
-    fullPath = path.resolve(currentDir, importPath);
-  }
-});
+const program = new Command();
+program
+  .command("create")
+  .description("Generate processed context files with resolved imports")
+  .option("--output-folder <mode>", "Output folder mode", "origin")
+  .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
+  .action(createCommand);
 ```
 
-**Directory Traversal Pattern** - `index.js` (lines 7-30):
+**Import Resolution Pattern** - `src/importResolver.js` (lines 5-40):
 ```javascript
-while (currentDir !== path.dirname(currentDir)) {
-  const claudeFile = path.join(currentDir, "CLAUDE.md");
-  if (fs.existsSync(claudeFile)) {
-    files.push(claudeFile);
+const importRegex = /@([^\s\n]+)/g;
+function processImports(text, currentDir) {
+  return text.replace(importRegex, (match, importPath) => {
+    // Handle tilde expansion for home directory
+    if (importPath.startsWith("~/")) {
+      fullPath = path.join(os.homedir(), importPath.slice(2));
+    } else {
+      fullPath = path.resolve(currentDir, importPath);
+    }
+    // Recursively process imports in the imported file
+    return processImports(importedContent, importedDir);
+  });
+}
+```
+
+**Directory Traversal Pattern** - `src/fileCollector.js` (lines 5-28):
+```javascript
+function collectClaudeFiles(startDir, homeDir) {
+  const files = [];
+  let currentDir = startDir;
+  while (currentDir !== path.dirname(currentDir)) {
+    const claudeFile = path.join(currentDir, "CLAUDE.md");
+    if (fs.existsSync(claudeFile)) {
+      files.push(claudeFile);
+    }
+    if (currentDir === homeDir) break;
+    currentDir = path.dirname(currentDir);
   }
-  if (currentDir === homeDir) break;
-  currentDir = path.dirname(currentDir);
 }
 ```
 
 ## Common Patterns
 
-**Circular Import Prevention** - Set-based tracking (`index.js` lines 35, 49, 54):
+**Command Module Structure** - All commands follow consistent pattern (`src/commands/*.js`):
+```javascript
+function commandName(options) {
+  try {
+    // Command logic with options processing
+    console.log("Success message with file paths");
+  } catch (error) {
+    console.error("Error:", error.message);
+    process.exit(1);
+  }
+}
+module.exports = commandName;
+```
+
+**Circular Import Prevention** - Set-based tracking (`src/importResolver.js` lines 8, 22-24, 27):
 ```javascript
 const resolved = new Set();
 if (!fs.existsSync(fullPath) || resolved.has(fullPath)) {
-  return match;
+  return match; // Keep original if file doesn't exist or already processed
 }
 resolved.add(fullPath);
 ```
 
-**Recursive Processing** - Nested import resolution (`index.js` lines 58-59):
+**JSON Settings Management** - Pattern used in setup/teardown commands (`src/commands/setup.js` lines 14-19):
 ```javascript
-return processImports(importedContent, importedDir);
+// Ensure contextFileName is always an array
+if (!settings.contextFileName) {
+  settings.contextFileName = [];
+} else if (typeof settings.contextFileName === "string") {
+  settings.contextFileName = [settings.contextFileName];
+}
 ```
 
-**Error Handling Strategy** - Continue processing on errors (`index.js` lines 60-62, 78-81):
+**Output Path Resolution** - Mode-based path generation (`src/fileProcessor.js` lines 62-76):
 ```javascript
-try {
-  // File operations
-} catch (error) {
-  return match; // Preserve original content
+function getOutputPath(outputFolder, filename, startDir = process.cwd()) {
+  switch (outputFolder) {
+    case "global": return path.join(homeDir, ".gemini", filename);
+    case "project": return path.join(startDir, filename);
+    case "origin": return null; // Handled differently
+  }
+}
+```
+
+**Validation Pattern** - Input sanitization (`src/utils/validation.js` lines 1-7):
+```javascript
+function validateFilename(filename) {
+  if (filename === "CLAUDE.md") {
+    console.error("Error: Cannot use 'CLAUDE.md' as output filename");
+    process.exit(1);
+  }
+  return filename;
 }
 ```
 
 ## Workflows
 
-**Adding New Features**:
-1. Modify core functions in `index.js`
-2. Update module exports if needed (line 113)
-3. Test with `npm run test` or direct execution
-4. Verify import resolution and output format
+**Adding New Commands**:
+1. Create command file in `src/commands/` following the standard pattern
+2. Import and register command in `index.js` (lines 21-61)
+3. Add command help text in `src/commands/help.js` (lines 4-79)
+4. Test command functionality with various options
+5. Update documentation if needed
 
-**Debugging Import Issues**:
-1. Check file paths in `resolveImports()` function (lines 39-46)
-2. Verify regex pattern matching (line 33)
-3. Test with sample files containing various import patterns
-4. Use console.log in development for path resolution debugging
+**Modifying Core Processing**:
+1. File collection logic: `src/fileCollector.js`
+2. Import resolution: `src/importResolver.js` (regex at line 6)
+3. File processing: `src/fileProcessor.js`
+4. Output generation: `src/fileProcessor.js` (lines 25-46)
 
-**Code Modification Areas**:
-- Import regex pattern (`index.js` line 33)
-- Path resolution logic (`index.js` lines 42-46)
-- Output formatting (`index.js` lines 97-106)
-- File collection rules (`index.js` lines 11-21)
+**Debugging File Processing Issues**:
+1. Check file collection in `src/fileCollector.js` - verify CLAUDE.md files found
+2. Verify import resolution in `src/importResolver.js` - test regex pattern matching
+3. Test path resolution with tilde expansion (lines 15-16)
+4. Check output mode handling in `src/fileProcessor.js` (lines 78-101)
+
+**Adding New Validation Rules**:
+1. Extend `src/utils/validation.js` with new validation functions
+2. Import validation in `index.js` and apply to command options
+3. Add appropriate error messages and exit codes
 
 ## Reference
 
 **File Organization**:
-- Single file architecture: `index.js` contains all functionality
-- Configuration: `package.json` for npm and CLI setup
-- Documentation: `SPEC.md` for requirements, `CLAUDE.md` for context
+- **Main Entry**: `index.js` - CLI setup with Commander.js and command registration
+- **Core Modules**: `src/fileCollector.js`, `src/fileProcessor.js`, `src/importResolver.js`
+- **Commands**: `src/commands/*.js` - Individual command implementations
+- **Utilities**: `src/utils/validation.js` - Input validation and sanitization
+- **Configuration**: `package.json` - Package config with bin entry for global installation
+
+**Module Dependencies**:
+- `src/fileProcessor.js` depends on `src/fileCollector.js` and `src/importResolver.js`
+- Command files import from `src/fileProcessor.js` and `src/fileCollector.js` as needed
+- `index.js` imports all command modules and utilities
 
 **Naming Conventions**:
-- Function names use camelCase: `collectClaudeFiles`, `resolveImports`
-- Variables descriptive: `startDir`, `homeDir`, `claudeFiles`
-- Constants in camelCase: `importRegex`, `globalClaudeFile`
+- **Files**: kebab-case for multi-word names (`file-collector.js` style avoided, camelCase used)
+- **Functions**: camelCase (`collectClaudeFiles`, `validateFilename`)
+- **Variables**: camelCase (`settingsPath`, `claudeFiles`, `processedContents`)
+- **Constants**: camelCase (`importRegex`, `globalClaudeFile`)
+
+**Error Handling Patterns**:
+- **File Operations**: Try-catch with graceful fallback (`src/importResolver.js` lines 26-35)
+- **JSON Parsing**: Explicit error handling (`src/commands/teardown.js` lines 15-20)
+- **Command Failures**: Error logging with process.exit(1) pattern
+- **Missing Files**: Existential checks before operations (`fs.existsSync()` usage)
 
 **Common Issues**:
-- Path resolution on Windows vs Unix (handled by `path` module)
-- Circular imports (prevented by `resolved` Set)
-- File permission errors (handled with try-catch blocks)
-- Import regex matching edge cases (non-file paths preserved)
+- **Path Resolution**: Cross-platform compatibility handled by Node.js `path` module
+- **Circular Imports**: Prevented by Set tracking in `src/importResolver.js` (line 8)
+- **File Permissions**: Handled with try-catch blocks in all file operations
+- **JSON Corruption**: Explicit parsing with error handling in settings operations
+- **Command Options**: Default values and validation applied through Commander.js
 
-**Module Structure**:
-- Main execution: `main()` function (`index.js` lines 87-111)
-- Core functions: Exported for testing (`index.js` line 113)
-- CLI integration: Shebang and module.main check (`index.js` lines 1, 109-111)
+**Testing Approach**:
+- **Manual Testing**: Run commands with various option combinations
+- **Integration Testing**: Test full workflows (create → setup → teardown → cleanup)
+- **Path Testing**: Verify cross-platform path handling
+- **Edge Case Testing**: Test with missing files, invalid paths, circular imports
