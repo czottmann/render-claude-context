@@ -10,7 +10,6 @@ const createCommand = require("./src/commands/create");
 const setupCommand = require("./src/commands/setup");
 const teardownCommand = require("./src/commands/teardown");
 const cleanupCommand = require("./src/commands/cleanup");
-const helpCommand = require("./src/commands/help");
 const { validateFilename } = require("./src/utils/validation");
 
 /**
@@ -23,39 +22,88 @@ function main() {
   program
     .name("claude-context-render")
     .description(
-      "CLI tool to collect and process CLAUDE.md files from directory hierarchy",
+      "Collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), embeds their @imports, and generates processed context files with resolved imports.\n\nThese files can then be used as context for Gemini.",
+    )
+    .addHelpText(
+      "after",
+      `
+Example:
+
+  Walk up from the current folder up to the home folder, find every CLAUDE.md
+  file in the hierarchy, resolve its @-imports as Claude Code would, generate a
+  CLAUDE-generated.md file next to the original, then call Gemini CLI which will
+  use them as context (assuming it was told so before using \`setup\`).
+  When gemini exits, clean up the generated files.
+
+  $ claude-context-render create; gemini; claude-context-render cleanup
+  `,
     )
     .version("1.0.0");
 
   program
-    .command("help", { isDefault: true })
-    .description("Show usage instructions")
-    .argument("[command]", "Show help for specific command")
-    .action(helpCommand);
-
-  program
     .command("create")
-    .description("Generate processed context files with resolved imports")
+    .description(
+      "Collect CLAUDE.md files from current directory up to home folder, resolve @-imports recursively, and write a context output file to specified location",
+    )
     .option(
       "--output-folder <mode>",
-      "Output folder mode: global, project, or origin",
+      "Where to write output:\n- global (~/.claude/, one collated file)\n- project (cwd, one collated file)\n- origin (single files, next to each found CLAUDE.md file)",
       "origin",
     )
-    .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
+    .option(
+      "--filename <name>",
+      "Name of output file",
+      validateFilename,
+      "CLAUDE-derived.md",
+    )
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ claude-context-render create
+  $ claude-context-render create --output-folder global --filename my-context.md
+  $ claude-context-render create --output-folder origin`,
+    )
     .action(createCommand);
 
   program
     .command("setup")
     .description(
-      "Add filename to ~/.gemini/settings.json contextFileName array for auto-loading",
+      "Add output filename to ~/.gemini/settings.json contextFileName array so Gemini auto-loads the generated context files",
     )
-    .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
+    .option(
+      "--filename <name>",
+      "Name of context file to register",
+      validateFilename,
+      "CLAUDE-derived.md",
+    )
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ claude-context-render setup
+  $ claude-context-render setup --filename my-context.md`,
+    )
     .action(setupCommand);
 
   program
     .command("teardown")
-    .description("Remove filename from Gemini contextFileName array")
-    .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
+    .description(
+      "Remove filename from ~/.gemini/settings.json contextFileName array to stop Gemini auto-loading",
+    )
+    .option(
+      "--filename <name>",
+      "Name of context file to unregister",
+      validateFilename,
+      "CLAUDE-derived.md",
+    )
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ claude-context-render teardown
+  $ claude-context-render teardown --filename my-context.md`,
+    )
     .action(teardownCommand);
 
   program
@@ -63,10 +111,23 @@ function main() {
     .description("Delete generated context files from filesystem")
     .option(
       "--output-folder <mode>",
-      "Output folder mode: global, project, or origin",
+      "Where to remove output from:\n- global (~/.claude/)\n- project (cwd)\n- origin (each folder in the hierarchy containing a CLAUDE.md file)",
       "origin",
     )
-    .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
+    .option(
+      "--filename <name>",
+      "Name of context file to delete",
+      validateFilename,
+      "CLAUDE-derived.md",
+    )
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ claude-context-render cleanup
+  $ claude-context-render cleanup --output-folder global --filename my-context.md
+  $ claude-context-render cleanup --output-folder origin`,
+    )
     .action(cleanupCommand);
 
   program.parse();

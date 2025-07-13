@@ -4,7 +4,11 @@
       "Bash(chmod:*)",
       "Bash(node:*)",
       "Bash(mkdir:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm config get:*)",
+      "Bash(npm whoami:*)",
+      "WebFetch(domain:www.npmjs.com)"
     ],
     "deny": []
   }

@@ -1,7 +1,7 @@
 {
   "name": "claude-context-render",
   "version": "1.0.0",
-  "description": "CLI tool to collect and process CLAUDE.md files from directory hierarchy",
+  "description": "A tool that collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), resolves/embeds their @-imports, and generates processed context files can then be used as context for Gemini.",
   "main": "index.js",
   "bin": {
     "claude-context-render": "./index.js"
@@ -15,8 +15,8 @@
     "claude",
     "context"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Carlo Zottmann <carlo@zottmann.dev>",
+  "license": "MIT",
   "dependencies": {
     "commander": "^14.0.0"
   }
