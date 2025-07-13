@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const { Command } = require("commander");
 
 function collectClaudeFiles(startDir, homeDir) {
   const files = [];
@@ -84,30 +85,286 @@ function processFiles(files) {
   return processedContents;
 }
 
-function main() {
-  const startDir = process.cwd();
+function generateContextContent(startDir = process.cwd()) {
   const homeDir = os.homedir();
-
   const claudeFiles = collectClaudeFiles(startDir, homeDir);
   const processedContents = processFiles(claudeFiles);
 
-  // Output in reverse order with HTML comment separators
+  // Generate content in reverse order with HTML comment separators
   const reversedContents = processedContents.reverse();
+  let output = "";
 
   for (let i = 0; i < reversedContents.length; i++) {
     const { content, path: filePath } = reversedContents[i];
 
     // Add HTML comment with file path before content (except for first file)
     if (i > 0) {
-      process.stdout.write(`\n\n<!-- ${filePath} -->\n\n`);
+      output += `\n\n<!-- ${filePath} -->\n\n`;
     }
 
-    process.stdout.write(content);
+    output += content;
   }
+
+  return output;
+}
+
+function writeToFile(content, outputPath) {
+  const dir = path.dirname(outputPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(outputPath, content, "utf8");
+}
+
+function getOutputPath(outputFolder, filename, startDir = process.cwd()) {
+  const homeDir = os.homedir();
+
+  switch (outputFolder) {
+    case "global":
+      return path.join(homeDir, ".gemini", filename);
+    case "project":
+      return path.join(startDir, filename);
+    case "origin":
+      // For origin mode, we'll handle multiple files differently
+      return null;
+    default:
+      throw new Error(`Unknown output folder mode: ${outputFolder}`);
+  }
+}
+
+function handleOriginMode(filename, startDir = process.cwd()) {
+  const homeDir = os.homedir();
+  const claudeFiles = collectClaudeFiles(startDir, homeDir);
+
+  claudeFiles.forEach((claudeFile) => {
+    const fileDir = path.dirname(claudeFile);
+    const content = generateContextContentForFile(claudeFile);
+    const outputPath = path.join(fileDir, filename);
+    writeToFile(content, outputPath);
+  });
+}
+
+function generateContextContentForFile(claudeFile) {
+  const fileDir = path.dirname(claudeFile);
+  const content = fs.readFileSync(claudeFile, "utf8");
+  return resolveImports(content, fileDir);
+}
+
+function main() {
+  const program = new Command();
+
+  program
+    .name("claude-context-render")
+    .description(
+      "CLI tool to collect and process CLAUDE.md files from directory hierarchy",
+    )
+    .version("1.0.0");
+
+  program
+    .command("help", { isDefault: true })
+    .description("Show usage instructions")
+    .action(() => {
+      console.log(`
+claude-context-render - CLI tool for processing CLAUDE.md files
+
+USAGE:
+  claude-context-render <command> [options]
+
+COMMANDS:
+  create     Create context files from CLAUDE.md files (processes hierarchy and imports)
+  setup      Add output file to Gemini settings contextFileName array
+  cleanup    Remove generated context files
+  help       Show this help message
+
+CREATE COMMAND:
+  claude-context-render create [options]
+
+  Options:
+    --output-folder <mode>  Where to place output files:
+                           • global: ~/.gemini/ (single collated file)
+                           • project: current directory (single collated file)
+                           • origin: next to each CLAUDE.md (individual files)
+                           Default: project
+    --filename <name>      Output filename (default: CLAUDE-derived.md)
+
+  Examples:
+    claude-context-render create
+    claude-context-render create --output-folder global --filename my-context.md
+    claude-context-render create --output-folder origin
+
+SETUP COMMAND:
+  claude-context-render setup [options]
+
+  Adds the output file path to ~/.gemini/settings.json contextFileName array
+  so Gemini CLI automatically loads the context file.
+
+  Options: Same as create command
+
+  Example:
+    claude-context-render setup --output-folder global
+
+CLEANUP COMMAND:
+  claude-context-render cleanup [options]
+
+  Removes generated context files.
+
+  Options: Same as create command
+
+  Example:
+    claude-context-render cleanup --output-folder origin
+
+For more details, see: https://github.com/anthropics/claude-code
+`);
+    });
+
+  program
+    .command("create")
+    .description("Create context files from CLAUDE.md files")
+    .option(
+      "--output-folder <mode>",
+      "Output folder mode: global, project, or origin",
+      "project",
+    )
+    .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
+    .action((options) => {
+      try {
+        if (options.outputFolder === "origin") {
+          handleOriginMode(options.filename);
+          console.log(
+            `Context files created next to each CLAUDE.md file as "${options.filename}"`,
+          );
+        } else {
+          const content = generateContextContent();
+          const outputPath = getOutputPath(
+            options.outputFolder,
+            options.filename,
+          );
+          writeToFile(content, outputPath);
+          console.log(`Context file created at: ${outputPath}`);
+        }
+      } catch (error) {
+        console.error("Error:", error.message);
+        process.exit(1);
+      }
+    });
+
+  program
+    .command("setup")
+    .description("Add output file to Gemini settings contextFileName array")
+    .option(
+      "--output-folder <mode>",
+      "Output folder mode: global, project, or origin",
+      "project",
+    )
+    .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
+    .action((options) => {
+      try {
+        if (options.outputFolder === "origin") {
+          console.log("Setup command not applicable for origin mode");
+          return;
+        }
+
+        const outputPath = getOutputPath(
+          options.outputFolder,
+          options.filename,
+        );
+        const settingsPath = path.join(
+          os.homedir(),
+          ".gemini",
+          "settings.json",
+        );
+
+        let settings = {};
+        if (fs.existsSync(settingsPath)) {
+          settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+        }
+
+        if (!settings.contextFileName) {
+          settings.contextFileName = [];
+        }
+
+        if (!settings.contextFileName.includes(options.filename)) {
+          settings.contextFileName.push(options.filename);
+
+          const settingsDir = path.dirname(settingsPath);
+          if (!fs.existsSync(settingsDir)) {
+            fs.mkdirSync(settingsDir, { recursive: true });
+          }
+
+          fs.writeFileSync(
+            settingsPath,
+            JSON.stringify(settings, null, 2),
+            "utf8",
+          );
+          console.log(
+            `Added ${options.filename} to \`~/.gemini/settings.json\` \`contextFileName\` array`,
+          );
+        } else {
+          console.log(
+            `${options.filename} already exists in \`~/.gemini/settings.json\``,
+          );
+        }
+      } catch (error) {
+        console.error("Error:", error.message);
+        process.exit(1);
+      }
+    });
+
+  program
+    .command("cleanup")
+    .description("Remove generated context files")
+    .option(
+      "--output-folder <mode>",
+      "Output folder mode: global, project, or origin",
+      "project",
+    )
+    .option("--filename <name>", "Output filename", "CLAUDE-derived.md")
+    .action((options) => {
+      try {
+        if (options.outputFolder === "origin") {
+          const homeDir = os.homedir();
+          const claudeFiles = collectClaudeFiles(process.cwd(), homeDir);
+
+          claudeFiles.forEach((claudeFile) => {
+            const fileDir = path.dirname(claudeFile);
+            const outputPath = path.join(fileDir, options.filename);
+            if (fs.existsSync(outputPath)) {
+              fs.unlinkSync(outputPath);
+              console.log(`Removed: ${outputPath}`);
+            }
+          });
+        } else {
+          const outputPath = getOutputPath(
+            options.outputFolder,
+            options.filename,
+          );
+          if (fs.existsSync(outputPath)) {
+            fs.unlinkSync(outputPath);
+            console.log(`Removed: ${outputPath}`);
+          } else {
+            console.log(`File not found: ${outputPath}`);
+          }
+        }
+      } catch (error) {
+        console.error("Error:", error.message);
+        process.exit(1);
+      }
+    });
+
+  program.parse();
 }
 
 if (require.main === module) {
   main();
 }
 
-module.exports = { collectClaudeFiles, resolveImports, processFiles };
+module.exports = {
+  collectClaudeFiles,
+  resolveImports,
+  processFiles,
+  generateContextContent,
+  writeToFile,
+  getOutputPath,
+  handleOriginMode,
+  generateContextContentForFile,
+};

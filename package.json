@@ -1,16 +1,23 @@
 {
-  "name": "claude-static-context-dump",
+  "name": "claude-context-render",
   "version": "1.0.0",
   "description": "CLI tool to collect and process CLAUDE.md files from directory hierarchy",
   "main": "index.js",
   "bin": {
-    "claude-static-context-dump": "./index.js"
+    "claude-context-render": "./index.js"
   },
   "scripts": {
     "build": "node index.js",
     "test": "node index.js"
   },
-  "keywords": ["cli", "claude", "context"],
+  "keywords": [
+    "cli",
+    "claude",
+    "context"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^14.0.0"
+  }
 }
