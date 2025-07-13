@@ -176,22 +176,18 @@ function main() {
   program
     .command("help", { isDefault: true })
     .description("Show usage instructions")
-    .action(() => {
-      console.log(`
-claude-context-render - CLI tool for processing CLAUDE.md files
-
-USAGE:
-  claude-context-render <command> [options]
-
-COMMANDS:
-  create     Create context files from CLAUDE.md files (processes hierarchy and imports)
-  setup      Add output file to Gemini settings contextFileName array
-  teardown   Remove output file from Gemini settings contextFileName array
-  cleanup    Remove generated context files
-  help       Show this help message
-
+    .argument("[command]", "Show help for specific command")
+    .action((command) => {
+      if (command) {
+        // Show help for specific command
+        switch (command) {
+          case "create":
+            console.log(`
 CREATE COMMAND:
   claude-context-render create [options]
+
+  Walks up directory tree collecting CLAUDE.md files, processes @imports recursively,
+  and outputs single or multiple processed files.
 
   Options:
     --output-folder <mode>  Where to place output files:
@@ -205,50 +201,90 @@ CREATE COMMAND:
     claude-context-render create
     claude-context-render create --output-folder global --filename my-context.md
     claude-context-render create --output-folder origin
-
+`);
+            break;
+          case "setup":
+            console.log(`
 SETUP COMMAND:
   claude-context-render setup [options]
 
-  Adds the specified filename to ~/.gemini/settings.json contextFileName array
-  so Gemini CLI automatically loads the context file.
+  Writes filename to ~/.gemini/settings.json contextFileName array
+  so Gemini CLI auto-loads the context file on startup.
 
-  Options: Same as create command (except origin mode not applicable)
+  Options:
+    --output-folder <mode>  Output folder mode: global, project (origin not applicable)
+    --filename <name>      Output filename (default: CLAUDE-derived.md)
 
   Examples:
     claude-context-render setup
     claude-context-render setup --filename my-context.md
-
+`);
+            break;
+          case "teardown":
+            console.log(`
 TEARDOWN COMMAND:
   claude-context-render teardown [options]
 
-  Removes the specified filename from ~/.gemini/settings.json contextFileName array
-  so Gemini CLI stops loading the context file.
+  Removes filename from ~/.gemini/settings.json contextFileName array
+  so Gemini CLI stops auto-loading the context file.
 
-  Options: Same as setup command
+  Options:
+    --output-folder <mode>  Output folder mode: global, project (origin not applicable)
+    --filename <name>      Output filename (default: CLAUDE-derived.md)
 
   Examples:
     claude-context-render teardown
     claude-context-render teardown --filename my-context.md
-
+`);
+            break;
+          case "cleanup":
+            console.log(`
 CLEANUP COMMAND:
   claude-context-render cleanup [options]
 
-  Removes generated context files based on the specified output mode and filename.
+  Deletes generated context files from filesystem based on output mode and filename.
 
-  Options: Same as create command
+  Options:
+    --output-folder <mode>  Output folder mode: global, project, or origin
+    --filename <name>      Output filename (default: CLAUDE-derived.md)
 
   Examples:
     claude-context-render cleanup
     claude-context-render cleanup --output-folder global --filename my-context.md
     claude-context-render cleanup --output-folder origin
-
-For more details, see: https://github.com/anthropics/claude-code
 `);
+            break;
+          default:
+            console.log(`Unknown command: ${command}`);
+            console.log("Available commands: create, setup, teardown, cleanup");
+        }
+      } else {
+        // Show general help
+        console.log(`
+Collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/),
+embeds their @imports, and generates processed context files with resolved imports.
+These files can then be used as context for Gemini.
+
+USAGE:
+  claude-context-render <command> [options]
+  claude-context-render help [command]
+
+COMMANDS:
+  create     Generate processed context files with resolved imports
+  setup      Add filename to Gemini contextFileName array for auto-loading
+  teardown   Remove filename from Gemini contextFileName array
+  cleanup    Delete generated context files from filesystem
+  help       Show usage instructions
+
+Use "claude-context-render help <command>" for detailed command help.
+Use "claude-context-render <command> --help" for command options.
+`);
+      }
     });
 
   program
     .command("create")
-    .description("Create context files from CLAUDE.md files")
+    .description("Generate processed context files with resolved imports")
     .option(
       "--output-folder <mode>",
       "Output folder mode: global, project, or origin",
@@ -258,7 +294,9 @@ For more details, see: https://github.com/anthropics/claude-code
     .action((options) => {
       try {
         if (options.filename === "CLAUDE.md") {
-          console.error("Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files");
+          console.error(
+            "Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files",
+          );
           process.exit(1);
         }
 
@@ -285,7 +323,7 @@ For more details, see: https://github.com/anthropics/claude-code
   program
     .command("setup")
     .description(
-      "Add output file to ~/.gemini/settings.json contextFileName array",
+      "Add filename to Gemini contextFileName array for auto-loading",
     )
     .option(
       "--output-folder <mode>",
@@ -296,7 +334,9 @@ For more details, see: https://github.com/anthropics/claude-code
     .action((options) => {
       try {
         if (options.filename === "CLAUDE.md") {
-          console.error("Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files");
+          console.error(
+            "Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files",
+          );
           process.exit(1);
         }
 
@@ -350,9 +390,7 @@ For more details, see: https://github.com/anthropics/claude-code
 
   program
     .command("teardown")
-    .description(
-      "Remove output file from ~/.gemini/settings.json contextFileName array",
-    )
+    .description("Remove filename from Gemini contextFileName array")
     .option(
       "--output-folder <mode>",
       "Output folder mode: global, project, or origin",
@@ -362,7 +400,9 @@ For more details, see: https://github.com/anthropics/claude-code
     .action((options) => {
       try {
         if (options.filename === "CLAUDE.md") {
-          console.error("Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files");
+          console.error(
+            "Error: Cannot use 'CLAUDE.md' as output filename to prevent overwriting source files",
+          );
           process.exit(1);
         }
 
@@ -390,7 +430,10 @@ For more details, see: https://github.com/anthropics/claude-code
           process.exit(1);
         }
 
-        if (!settings.contextFileName || !Array.isArray(settings.contextFileName)) {
+        if (
+          !settings.contextFileName ||
+          !Array.isArray(settings.contextFileName)
+        ) {
           console.log("No contextFileName array found in Gemini settings");
           return;
         }
@@ -420,7 +463,7 @@ For more details, see: https://github.com/anthropics/claude-code
 
   program
     .command("cleanup")
-    .description("Remove generated context files")
+    .description("Delete generated context files from filesystem")
     .option(
       "--output-folder <mode>",
       "Output folder mode: global, project, or origin",
@@ -430,7 +473,9 @@ For more details, see: https://github.com/anthropics/claude-code
     .action((options) => {
       try {
         if (options.filename === "CLAUDE.md") {
-          console.error("Error: Cannot use 'CLAUDE.md' as filename to prevent accidental deletion of source files");
+          console.error(
+            "Error: Cannot use 'CLAUDE.md' as filename to prevent accidental deletion of source files",
+          );
           process.exit(1);
         }
 
