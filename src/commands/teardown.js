@@ -1,16 +1,22 @@
+/**
+ * @fileoverview Teardown command implementation for Gemini integration cleanup.
+ * Removes filename from ~/.gemini/settings.json contextFileName array.
+ */
+
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
+/**
+ * Removes filename from Gemini contextFileName array to stop auto-loading.
+ * Handles both string and array contextFileName formats with proper cleanup.
+ * 
+ * @param {Object} options - Command options from Commander.js
+ * @param {string} options.filename - Filename to remove from Gemini settings
+ */
 function teardownCommand(options) {
   try {
-
-
-    const settingsPath = path.join(
-      os.homedir(),
-      ".gemini",
-      "settings.json",
-    );
+    const settingsPath = path.join(os.homedir(), ".gemini", "settings.json");
 
     if (!fs.existsSync(settingsPath)) {
       console.log("No Gemini settings file found");
@@ -31,7 +37,7 @@ function teardownCommand(options) {
     }
 
     // Ensure contextFileName is always an array
-    if (typeof settings.contextFileName === 'string') {
+    if (typeof settings.contextFileName === "string") {
       settings.contextFileName = [settings.contextFileName];
     }
 
@@ -44,11 +50,7 @@ function teardownCommand(options) {
     if (index !== -1) {
       settings.contextFileName.splice(index, 1);
 
-      fs.writeFileSync(
-        settingsPath,
-        JSON.stringify(settings, null, 2),
-        "utf8",
-      );
+      fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
       console.log(
         `Removed ${options.filename} from ~/.gemini/settings.json contextFileName array`,
       );

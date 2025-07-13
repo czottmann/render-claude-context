@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Help command implementation for displaying usage instructions.
+ * Provides detailed help for specific commands or general usage overview.
+ */
+
+/**
+ * Displays help information for specific commands or general usage.
+ * Shows detailed command options, examples, and usage patterns.
+ * 
+ * @param {string|undefined} command - Specific command to show help for, or undefined for general help
+ */
 function helpCommand(command) {
   if (command) {
     // Show help for specific command

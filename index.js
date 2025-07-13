@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+/**
+ * @fileoverview CLI entry point for claude-context-render.
+ * Orchestrates Commander.js CLI framework with modular command implementations.
+ */
+
 const { Command } = require("commander");
 const createCommand = require("./src/commands/create");
 const setupCommand = require("./src/commands/setup");
@@ -8,6 +13,10 @@ const cleanupCommand = require("./src/commands/cleanup");
 const helpCommand = require("./src/commands/help");
 const { validateFilename } = require("./src/utils/validation");
 
+/**
+ * Main CLI application entry point.
+ * Sets up Commander.js program with all commands and their options.
+ */
 function main() {
   const program = new Command();
 
@@ -67,6 +76,10 @@ if (require.main === module) {
   main();
 }
 
+/**
+ * Module exports for programmatic access and testing.
+ * Re-exports core functions from modular components for backwards compatibility.
+ */
 module.exports = {
   // Re-export functions from modules for backwards compatibility
   ...require("./src/fileCollector"),

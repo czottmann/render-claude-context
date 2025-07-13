@@ -1,16 +1,22 @@
+/**
+ * @fileoverview Setup command implementation for Gemini integration.
+ * Adds filename to ~/.gemini/settings.json contextFileName array for auto-loading.
+ */
+
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
+/**
+ * Adds filename to Gemini contextFileName array for automatic context loading.
+ * Handles both string and array contextFileName formats, ensuring array output.
+ * 
+ * @param {Object} options - Command options from Commander.js
+ * @param {string} options.filename - Filename to add to Gemini settings
+ */
 function setupCommand(options) {
   try {
-
-
-    const settingsPath = path.join(
-      os.homedir(),
-      ".gemini",
-      "settings.json",
-    );
+    const settingsPath = path.join(os.homedir(), ".gemini", "settings.json");
 
     let settings = {};
     if (fs.existsSync(settingsPath)) {
@@ -20,7 +26,7 @@ function setupCommand(options) {
     // Ensure contextFileName is always an array
     if (!settings.contextFileName) {
       settings.contextFileName = [];
-    } else if (typeof settings.contextFileName === 'string') {
+    } else if (typeof settings.contextFileName === "string") {
       settings.contextFileName = [settings.contextFileName];
     }
 
@@ -33,11 +39,7 @@ function setupCommand(options) {
         fs.mkdirSync(settingsDir, { recursive: true });
       }
 
-      fs.writeFileSync(
-        settingsPath,
-        JSON.stringify(settings, null, 2),
-        "utf8",
-      );
+      fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
       console.log(
         `Added ${options.filename} to ~/.gemini/settings.json contextFileName array`,
       );

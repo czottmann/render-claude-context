@@ -1,12 +1,24 @@
+/**
+ * @fileoverview Cleanup command implementation for removing generated files.
+ * Deletes context files from filesystem based on output mode and filename.
+ */
+
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { collectClaudeFiles } = require("../fileCollector");
 const { getOutputPath } = require("../fileProcessor");
 
+/**
+ * Deletes generated context files from filesystem based on output mode.
+ * Supports all output modes: origin (individual files), global, and project.
+ * 
+ * @param {Object} options - Command options from Commander.js
+ * @param {string} options.outputFolder - Output mode: "origin", "global", or "project"
+ * @param {string} options.filename - Filename pattern to delete
+ */
 function cleanupCommand(options) {
   try {
-
     let filesRemoved = [];
 
     if (options.outputFolder === "origin") {
@@ -32,10 +44,7 @@ function cleanupCommand(options) {
       });
     } else {
       // Remove file based on specified output folder mode
-      const outputPath = getOutputPath(
-        options.outputFolder,
-        options.filename,
-      );
+      const outputPath = getOutputPath(options.outputFolder, options.filename);
       if (fs.existsSync(outputPath)) {
         fs.unlinkSync(outputPath);
         filesRemoved.push(outputPath);

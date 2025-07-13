@@ -1,9 +1,20 @@
+/**
+ * @fileoverview File processing module for generating context content from CLAUDE.md files.
+ * Handles file processing, content generation, and output management with multiple output modes.
+ */
+
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { collectClaudeFiles } = require("./fileCollector");
 const { resolveImports } = require("./importResolver");
 
+/**
+ * Processes an array of CLAUDE.md file paths, reading and resolving imports for each.
+ * 
+ * @param {string[]} files - Array of absolute file paths to CLAUDE.md files
+ * @returns {Array<{content: string, path: string}>} Array of processed file objects
+ */
 function processFiles(files) {
   const processedContents = [];
 
@@ -22,6 +33,13 @@ function processFiles(files) {
   return processedContents;
 }
 
+/**
+ * Generates complete context content by collecting and processing CLAUDE.md files.
+ * Files are processed in reverse order with HTML comment separators.
+ * 
+ * @param {string} [startDir=process.cwd()] - Starting directory for file collection
+ * @returns {string} Complete context content with resolved imports and HTML separators
+ */
 function generateContextContent(startDir = process.cwd()) {
   const homeDir = os.homedir();
   const claudeFiles = collectClaudeFiles(startDir, homeDir);
@@ -45,12 +63,24 @@ function generateContextContent(startDir = process.cwd()) {
   return output;
 }
 
+/**
+ * Generates context content for a single CLAUDE.md file with import resolution.
+ * 
+ * @param {string} claudeFile - Absolute path to CLAUDE.md file
+ * @returns {string} File content with all imports resolved
+ */
 function generateContextContentForFile(claudeFile) {
   const fileDir = path.dirname(claudeFile);
   const content = fs.readFileSync(claudeFile, "utf8");
   return resolveImports(content, fileDir);
 }
 
+/**
+ * Writes content to a file, creating directories as needed.
+ * 
+ * @param {string} content - Content to write to file
+ * @param {string} outputPath - Absolute path where file should be written
+ */
 function writeToFile(content, outputPath) {
   const dir = path.dirname(outputPath);
   if (!fs.existsSync(dir)) {
@@ -59,6 +89,15 @@ function writeToFile(content, outputPath) {
   fs.writeFileSync(outputPath, content, "utf8");
 }
 
+/**
+ * Determines output file path based on output folder mode.
+ * 
+ * @param {string} outputFolder - Output mode: "global", "project", or "origin"
+ * @param {string} filename - Output filename
+ * @param {string} [startDir=process.cwd()] - Starting directory for project mode
+ * @returns {string|null} Absolute output path, or null for origin mode
+ * @throws {Error} If outputFolder mode is unknown
+ */
 function getOutputPath(outputFolder, filename, startDir = process.cwd()) {
   const homeDir = os.homedir();
 
@@ -75,6 +114,14 @@ function getOutputPath(outputFolder, filename, startDir = process.cwd()) {
   }
 }
 
+/**
+ * Handles origin mode output by creating individual files next to each CLAUDE.md.
+ * Special case: ~/.claude/CLAUDE.md outputs to ~/.gemini/ instead.
+ * 
+ * @param {string} filename - Output filename to use
+ * @param {string} [startDir=process.cwd()] - Starting directory for file collection
+ * @returns {string[]} Array of created file paths
+ */
 function handleOriginMode(filename, startDir = process.cwd()) {
   const homeDir = os.homedir();
   const claudeFiles = collectClaudeFiles(startDir, homeDir);
