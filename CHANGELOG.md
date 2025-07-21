@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `create` and `cleanup` commands: new `--global-folder` option to configure output directory for global rules (defaults to `~/.gemini/`)
+- `setup` and `teardown` commands: new `--target` option for multi-platform AI tool support (gemini, opencode)
 
 ### Changed
+- **Renamed tool from "claude-context-render" to "render-claude-context".**
 - Updated documentation with new option examples and usage patterns
 
 ## [1.0.0] - 2025-07-13
