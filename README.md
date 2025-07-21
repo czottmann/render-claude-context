@@ -4,13 +4,13 @@
 
 Tired of maintaining two sets of context and rules for Claude Code and Gemini CLI?
 
-This node.js CLI tool processes CLAUDE.md files with hierarchical collection and recursive `@`-import resolution. Walks directory tree from current to home directory, collecting all CLAUDE.md files and processing them with file import resolution. Saves processed context files with resolved imports next to the original CLAUDE.md files.
+This node.js CLI tool processes CLAUDE.md files with hierarchical collection and recursive `@`-import resolution. Walks directory tree from current to `~/.claude/`, collecting all CLAUDE.md files and processing them with file import resolution. Saves processed context files with resolved imports next to the original CLAUDE.md files or in a specific location (configurable).
 
-These files can then be used as context for Gemini.
+These files can then be used as context for Gemini or opencode.
 
 ## But why?
 
-Claude Code uses `CLAUDE.md` files which contains context for the tool. From [Anthropic's docs](https://www.anthropic.com/engineering/claude-code-best-practices):
+Claude Code uses `CLAUDE.md` files which provide context for the tool. From [Anthropic's docs](https://www.anthropic.com/engineering/claude-code-best-practices):
 
 > You can place `CLAUDE.md` files in several locations:
 >
@@ -18,22 +18,37 @@ Claude Code uses `CLAUDE.md` files which contains context for the tool. From [An
 > Any parent of the directory where you run `claude`. This is most useful for monorepos, where you might run claude from `root/foo`, and have CLAUDE.md files in both `root/CLAUDE.md` and `root/foo/CLAUDE.md`. Both of these will be pulled into context automatically […]
 > Your home folder (`~/.claude/CLAUDE.md`), which applies it to all your *claude* sessions
 
-Gemini CLI works mostly the same way, but the file name is `GEMINI.md`, and the home folder is `~/.gemini/`. Sure, I can add `CLAUDE.md` to the list of Gemini's auto-read context files (see [config docs about `contextFileName`](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md#available-settings-in-settingsjson)), but that helps only partially because the tools differ in one big way:
+Other agentic tools, like **Gemini CLI** or **opencode**, work mostly the same way, but their expected file names are different (`GEMINI.md`, `AGENTS.md` etc.), and their home folder is not `~/.claude/`. Sure, I can make them read my `CLAUDE.md` files by adding that name to their settings (see [Gemini's docs about `contextFileName`](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md#available-settings-in-settingsjson) or [opencode's docs on `instructions`](https://opencode.ai/docs/config/#instructions)), but that helps only partially – because these tools differ in one big way:
 
-Both Claude Code and Gemini can `@`-import other files, meaning they will transpose `@./some/file.md` directives in their context file with the contents of the referenced file. BUT: Claude Code will happily import files from anywhere on your device while Gemini **only** allows files in the current directory. And that's my main issue with it!
+They all read their rules in a different way.
 
-Because I usually mix and match my rules, depending on the project, I put them in a separate folder on my machine. Claude can use them. Gemini can, too, but only when I copy them to the project, and then `@`-import that local copy.
+For example, both Claude Code and Gemini can `@`-import other files, meaning they will replace `@./some/file.md` directives in their context file with the contents of the referenced file. But while Claude Code will happily import files from anywhere on your device, Gemini **only** allows files in the current directory. And opencode works in a different way still.
 
-So in order to streamline my dev environment, I decided to keep only my `CLAUDE.md`'s in order, and make Gemini play ball. That means that I only have to set up context once (for Claude) – and Gemini reuses it without me having to copy/symlink rules and manually copy/rewriting context files.
+But I switch agents quite a bit, and it's cumbersome to copy and paste my rules and guidelines around.
 
-## Example
+So in order to streamline my dev environment, I decided to keep only my `CLAUDE.md`'s in order, and make Gemini and opencode play ball. **Now I only have to set up context once (for Claude) – and have the other agents reuse it without me having to jump through hoops.**
+
+## Examples
+
+### For Gemini
 
 ```bash
 # One-time setup, tells Gemini to use context files with that name
 render-claude-context setup --filename CLAUDE-derived.md
 
 # Every day use: Generate context files on the fly, call Gemini, then clean up
-render-claude-context create; gemini; render-claude-context cleanup
+render-claude-context create
+gemini
+render-claude-context cleanup
+```
+
+### opencode, with minimal amount of fuss
+
+```bash
+# Every day use: No extra setup, just generate `AGENTS.md` on the fly
+render-claude-context create --filename AGENTS.md
+opencode
+render-claude-context cleanup --filename AGENTS.md
 ```
 
 ## Quick Build Commands
