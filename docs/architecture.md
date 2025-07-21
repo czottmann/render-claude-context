@@ -1,10 +1,10 @@
-<!-- Generated: 2025-07-13 17:02:15 UTC -->
+<!-- Generated: 2025-07-21T10:24:41Z -->
 
 # Architecture
 
 ## Overview
 
-The claude-context-render CLI tool implements a modular hierarchical file processing architecture that walks up directory trees to collect CLAUDE.md configuration files, resolves embedded imports recursively, and generates processed context files. The system is designed around a clear separation of concerns with independent modules handling file discovery, import resolution, content processing, and command execution. The architecture supports multiple output modes (global, project, origin) and integrates with external systems like Gemini CLI through configuration file management.
+The render-claude-context CLI tool implements a modular hierarchical file processing architecture that walks up directory trees to collect CLAUDE.md configuration files, resolves embedded imports recursively, and generates processed context files. The system is designed around a clear separation of concerns with independent modules handling file discovery, import resolution, content processing, and command execution. The architecture supports multiple output modes (global, project, origin) and integrates with external systems like Gemini CLI through configuration file management.
 
 The core data flow follows a pipeline pattern: file collection → import resolution → content processing → output generation, with each stage handled by specialized modules. The command system provides a clean interface for different operations while sharing the underlying file processing infrastructure.
 

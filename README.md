@@ -1,6 +1,6 @@
-<!-- Generated: 2025-07-13 17:35:00 UTC -->
+<!-- Generated: 2025-07-21T10:24:41Z -->
 
-# claude-context-render
+# render-claude-context
 
 Tired of maintaining two sets of context and rules for Claude Code and Gemini CLI?
 
@@ -30,10 +30,10 @@ So in order to streamline my dev environment, I decided to keep only my `CLAUDE.
 
 ```bash
 # One-time setup, tells Gemini to use context files with that name
-claude-context-render setup --filename CLAUDE-derived.md
+render-claude-context setup --filename CLAUDE-derived.md
 
 # Every day use: Generate context files on the fly, call Gemini, then clean up
-claude-context-render create; gemini; claude-context-render cleanup
+render-claude-context create; gemini; render-claude-context cleanup
 ```
 
 ## Quick Build Commands
@@ -43,17 +43,17 @@ claude-context-render create; gemini; claude-context-render cleanup
 npm install && node index.js help
 
 # Global installation
-npm install -g . && claude-context-render help
+npm install -g . && render-claude-context help
 
 # Create context files (default: next to each CLAUDE.md)
-claude-context-render create
+render-claude-context create
 
 # Create with specific mode and filename
-claude-context-render create --output-folder global --filename my-context.md
+render-claude-context create --output-folder global --filename my-context.md
 
 # Gemini integration setup/teardown
-claude-context-render setup --filename my-context.md
-claude-context-render teardown --filename my-context.md
+render-claude-context setup --filename my-context.md
+render-claude-context teardown --filename my-context.md
 ```
 
 ## Key Files
@@ -63,7 +63,7 @@ claude-context-render teardown --filename my-context.md
 - **Import Resolution**: `src/importResolver.js` (recursive @path processing 5-40, tilde expansion 15-16)
 - **File Processing**: `src/fileProcessor.js` (content generation 25-46, output modes 62-76)
 - **Commands**: `src/commands/` (create, setup, teardown, cleanup implementations)
-- **Configuration**: `package.json` (binary claude-context-render 6-8, dependencies 20-22)
+- **Configuration**: `package.json` (binary render-claude-context 6-8, dependencies 20-22)
 
 ## Documentation
 
@@ -80,4 +80,3 @@ LLMs will find specific file paths, line numbers for key functions, actual code 
 ## Author
 
 Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com/czottmann
-

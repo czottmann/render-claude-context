@@ -1,4 +1,4 @@
-<!-- Generated: 2025-07-13 10:55:49 UTC -->
+<!-- Generated: 2025-07-21T10:24:41Z -->
 
 # Files Catalog
 
@@ -53,7 +53,7 @@ The project maintains a clean structure with source files organized by function 
 ## Build System
 
 **package.json** - NPM package configuration with CLI binary setup
-- Lines 6-8: Binary configuration mapping `claude-context-render` to `index.js`
+- Lines 6-8: Binary configuration mapping `render-claude-context` to `index.js`
 - Lines 9-12: Build and test scripts
 - Lines 20-22: Commander.js dependency (^14.0.0)
 
@@ -75,7 +75,7 @@ The project maintains a clean structure with source files organized by function 
 ## Documentation
 
 **docs/project-overview.md** - High-level project description and key files
-**docs/architecture.md** - System design and component relationships  
+**docs/architecture.md** - System design and component relationships
 **docs/build-system.md** - Build configuration and development workflows
 **docs/testing.md** - Test strategies and execution instructions
 **docs/development.md** - Development patterns and code style guidelines

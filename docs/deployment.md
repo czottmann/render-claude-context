@@ -1,4 +1,4 @@
-<!-- Generated: 2025-07-13 12:45:00 UTC -->
+<!-- Generated: 2025-07-21T10:24:41Z -->
 
 # Deployment
 
@@ -22,7 +22,7 @@ The deployment system supports three distinct output modes: origin mode (creates
 
 **Global CLI Distribution** - System-wide command availability
 - Global installation: `npm install -g .` from project directory
-- Command name: `claude-context-render` (configured in `package.json` lines 6-8)
+- Command name: `render-claude-context` (configured in `package.json` lines 6-8)
 - Binary field maps to `./index.js` for cross-platform CLI wrapper generation
 - System PATH integration with platform-specific execution wrappers
 
@@ -38,26 +38,26 @@ The deployment system supports three distinct output modes: origin mode (creates
 - Shebang execution: `#!/usr/bin/env node` in `index.js` line 1 enables direct execution
 - Permission setup: `chmod +x index.js` for executable access
 - Global symlink: `npm install -g .` creates symbolic link to project `index.js`
-- Command name: `claude-context-render` (binary name from `package.json` line 7)
+- Command name: `render-claude-context` (binary name from `package.json` line 7)
 - Output file locations: `~/.gemini/` (global), project directory (project), or origin directories (origin mode)
 
 **Windows Deployment**:
 - Node execution: `node index.js` (shebang line ignored on Windows)
-- Global wrapper: `npm install -g .` generates `claude-context-render.cmd` batch file
-- PowerShell wrapper: Additional `claude-context-render.ps1` script for PowerShell environments
+- Global wrapper: `npm install -g .` generates `render-claude-context.cmd` batch file
+- PowerShell wrapper: Additional `render-claude-context.ps1` script for PowerShell environments
 - Command resolution: Windows PATH integration through npm global directory
 - File operations: Cross-platform path handling in `src/fileProcessor.js` (lines 78-101)
 
 **Container/Docker Deployment**:
 - Base image: Node.js runtime required for execution environment
-- Installation: `npm install -g claude-context-render` for container-wide access
+- Installation: `npm install -g render-claude-context` for container-wide access
 - Volume mounts: Map host directories containing CLAUDE.md files to container paths
 - Output persistence: Mount `~/.gemini/` directory for global output mode persistence
 
 **CI/CD Pipeline Integration**:
-- Installation: `npm install claude-context-render` in build steps
-- Execution: `npx claude-context-render create --output-folder project` for build artifacts
-- Configuration: Setup command for Gemini integration: `npx claude-context-render setup`
+- Installation: `npm install render-claude-context` in build steps
+- Execution: `npx render-claude-context create --output-folder project` for build artifacts
+- Configuration: Setup command for Gemini integration: `npx render-claude-context setup`
 - Cleanup: Teardown and cleanup commands for pipeline cleanup phases
 
 ## Reference
@@ -65,8 +65,8 @@ The deployment system supports three distinct output modes: origin mode (creates
 **Installation Commands**:
 - Development: `npm install` (installs Commander.js dependency)
 - Global: `npm install -g .` (creates system-wide command)
-- Registry: `npm install -g claude-context-render` (after publication)
-- Container: `docker run -v $(pwd):/workspace node:latest npm install -g claude-context-render`
+- Registry: `npm install -g render-claude-context` (after publication)
+- Container: `docker run -v $(pwd):/workspace node:latest npm install -g render-claude-context`
 
 **Output Location Configuration**:
 - **Global mode**: `~/.gemini/CLAUDE-derived.md` (configured in `src/fileProcessor.js` line 67)
@@ -82,14 +82,14 @@ The deployment system supports three distinct output modes: origin mode (creates
 
 **Build System Integration**:
 - **NPM scripts**: `build` and `test` both execute `node index.js` (`package.json` lines 10-11)
-- **Binary configuration**: Maps `claude-context-render` to `./index.js` (lines 6-8)
+- **Binary configuration**: Maps `render-claude-context` to `./index.js` (lines 6-8)
 - **Module exports**: Backwards compatibility through re-exports in `index.js` (lines 70-75)
 - **Validation**: Input validation in `src/utils/validation.js` for filename safety
 
 **Distribution Checklist**:
 1. **Metadata verification**: Update `package.json` version, description, keywords (lines 3, 4, 13-16)
 2. **Dependency check**: Verify Commander.js version compatibility (line 21)
-3. **Global testing**: `npm install -g .` and test `claude-context-render --help`
+3. **Global testing**: `npm install -g .` and test `render-claude-context --help`
 4. **Platform testing**: Verify Windows batch wrapper and Unix symlink creation
 5. **Registry preparation**: `npm login` and `npm publish` for public distribution
 6. **Integration testing**: Test setup/teardown commands with Gemini configuration
@@ -99,8 +99,8 @@ The deployment system supports three distinct output modes: origin mode (creates
 - **Version bump**: Update `package.json` version field (line 3) following semantic versioning
 - **Authentication**: `npm login` to authenticate with registry.npmjs.org
 - **Publication**: `npm publish` to upload package to npm registry
-- **Verification**: `npm info claude-context-render` to verify published package metadata
-- **Installation test**: `npm install -g claude-context-render` from registry
+- **Verification**: `npm info render-claude-context` to verify published package metadata
+- **Installation test**: `npm install -g render-claude-context` from registry
 
 **File Path References**:
 - **Main executable**: `/index.js` (CLI entry point with shebang)

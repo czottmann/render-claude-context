@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * @fileoverview CLI entry point for claude-context-render.
+ * @fileoverview CLI entry point for render-claude-context.
  * Orchestrates Commander.js CLI framework with modular command implementations.
  */
 
@@ -20,7 +20,7 @@ function main() {
   const program = new Command();
 
   program
-    .name("claude-context-render")
+    .name("render-claude-context")
     .description(
       "Collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), embeds their @imports, and generates processed context files with resolved imports.\n\nThese files can then be used as context for Gemini.",
     )
@@ -35,7 +35,7 @@ Example:
   use them as context (assuming it was told so before using \`setup\`).
   When gemini exits, clean up the generated files.
 
-  $ claude-context-render create; gemini; claude-context-render cleanup
+  $ render-claude-context create; gemini; render-claude-context cleanup
   `,
     )
     .version("1.0.0");
@@ -60,9 +60,9 @@ Example:
       "after",
       `
 Examples:
-  $ claude-context-render create
-  $ claude-context-render create --output-folder global --filename my-context.md
-  $ claude-context-render create --output-folder origin`,
+  $ render-claude-context create
+  $ render-claude-context create --output-folder global --filename my-context.md
+  $ render-claude-context create --output-folder origin`,
     )
     .action(createCommand);
 
@@ -81,8 +81,8 @@ Examples:
       "after",
       `
 Examples:
-  $ claude-context-render setup
-  $ claude-context-render setup --filename my-context.md`,
+  $ render-claude-context setup
+  $ render-claude-context setup --filename my-context.md`,
     )
     .action(setupCommand);
 
@@ -101,8 +101,8 @@ Examples:
       "after",
       `
 Examples:
-  $ claude-context-render teardown
-  $ claude-context-render teardown --filename my-context.md`,
+  $ render-claude-context teardown
+  $ render-claude-context teardown --filename my-context.md`,
     )
     .action(teardownCommand);
 
@@ -124,9 +124,9 @@ Examples:
       "after",
       `
 Examples:
-  $ claude-context-render cleanup
-  $ claude-context-render cleanup --output-folder global --filename my-context.md
-  $ claude-context-render cleanup --output-folder origin`,
+  $ render-claude-context cleanup
+  $ render-claude-context cleanup --output-folder global --filename my-context.md
+  $ render-claude-context cleanup --output-folder origin`,
     )
     .action(cleanupCommand);
 

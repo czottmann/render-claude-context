@@ -1,4 +1,4 @@
-<!-- Generated: 2025-07-13 16:45:00 UTC -->
+<!-- Generated: 2025-07-21T10:24:41Z -->
 
 # Build System
 
@@ -27,10 +27,10 @@ npm run build   # Executes: node index.js (for testing)
 npm run test    # Executes: node index.js (same as build)
 ```
 
-**Global Installation** - `npm install -g .` installs as `claude-context-render` command:
+**Global Installation** - `npm install -g .` installs as `render-claude-context` command:
 ```bash
 npm install -g .  # Makes CLI available globally
-claude-context-render help  # Run from anywhere
+render-claude-context help  # Run from anywhere
 ```
 
 **Package Distribution** - Standard npm package structure for publishing:
@@ -56,7 +56,7 @@ chmod +x index.js  # Make executable (Unix/macOS)
 **Binary Configuration** (`package.json` lines 6-8):
 ```json
 "bin": {
-  "claude-context-render": "./index.js"
+  "render-claude-context": "./index.js"
 }
 ```
 
