@@ -1,25 +1,28 @@
 /**
- * @fileoverview Teardown command implementation for Gemini integration cleanup.
- * Removes filename from ~/.gemini/settings.json contextFileName array.
+ * @fileoverview Teardown command implementation for AI tool integration cleanup.
+ * Removes filename from target AI tool settings array.
  */
 
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const { getTargetConfig } = require("../utils/targets");
 
 /**
- * Removes filename from Gemini contextFileName array to stop auto-loading.
- * Handles both string and array contextFileName formats with proper cleanup.
+ * Removes filename from target AI tool settings array to stop auto-loading.
+ * Handles both string and array context settings formats with proper cleanup.
  * 
  * @param {Object} options - Command options from Commander.js
- * @param {string} options.filename - Filename to remove from Gemini settings
+ * @param {string} options.filename - Filename to remove from target settings
+ * @param {string} options.target - Target AI tool name
  */
 function teardownCommand(options) {
   try {
-    const settingsPath = path.join(os.homedir(), ".gemini", "settings.json");
+    const targetConfig = getTargetConfig(options.target);
+    const { settingsPath, contextKey, name } = targetConfig;
 
     if (!fs.existsSync(settingsPath)) {
-      console.log("No Gemini settings file found");
+      console.log(`No ${name} settings file found at ${settingsPath}`);
       return;
     }
 
@@ -27,36 +30,36 @@ function teardownCommand(options) {
     try {
       settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
     } catch (error) {
-      console.error("Error reading Gemini settings file:", error.message);
+      console.error(`Error reading ${name} settings file:`, error.message);
       process.exit(1);
     }
 
-    if (!settings.contextFileName) {
-      console.log("No contextFileName found in Gemini settings");
+    if (!settings[contextKey]) {
+      console.log(`No ${contextKey} found in ${name} settings`);
       return;
     }
 
-    // Ensure contextFileName is always an array
-    if (typeof settings.contextFileName === "string") {
-      settings.contextFileName = [settings.contextFileName];
+    // Ensure context key is always an array
+    if (typeof settings[contextKey] === "string") {
+      settings[contextKey] = [settings[contextKey]];
     }
 
-    if (!Array.isArray(settings.contextFileName)) {
-      console.log("Invalid contextFileName format in Gemini settings");
+    if (!Array.isArray(settings[contextKey])) {
+      console.log(`Invalid ${contextKey} format in ${name} settings`);
       return;
     }
 
-    const index = settings.contextFileName.indexOf(options.filename);
+    const index = settings[contextKey].indexOf(options.filename);
     if (index !== -1) {
-      settings.contextFileName.splice(index, 1);
+      settings[contextKey].splice(index, 1);
 
       fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
       console.log(
-        `Removed ${options.filename} from ~/.gemini/settings.json contextFileName array`,
+        `Removed ${options.filename} from ${name} ${contextKey} array at ${settingsPath}`,
       );
     } else {
       console.log(
-        `${options.filename} not found in ~/.gemini/settings.json contextFileName array`,
+        `${options.filename} not found in ${name} ${contextKey} array at ${settingsPath}`,
       );
     }
   } catch (error) {
