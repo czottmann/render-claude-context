@@ -12,7 +12,9 @@ const teardownCommand = require("./src/commands/teardown");
 const cleanupCommand = require("./src/commands/cleanup");
 const { validateFilename } = require("./src/utils/validation");
 const { validateTarget } = require("./src/utils/targetValidator");
-const { getDefaultTarget } = require("./src/utils/targets");
+const { getDefaultTarget, getTargetGlobalFolder } = require(
+  "./src/utils/targets",
+);
 
 /**
  * Main CLI application entry point.
@@ -58,6 +60,12 @@ Example:
       "~/.gemini/",
     )
     .option(
+      "--target <name>",
+      "Target AI tool (gemini, opencode) - sets global folder automatically",
+      validateTarget,
+      "gemini",
+    )
+    .option(
       "--filename <name>",
       "Name of output file",
       validateFilename,
@@ -69,7 +77,8 @@ Example:
 Examples:
   $ render-claude-context create
   $ render-claude-context create --output-folder global --filename my-context.md
-  $ render-claude-context create --output-folder origin`,
+  $ render-claude-context create --target opencode
+  $ render-claude-context create --target gemini --filename my-context.md`,
     )
     .action(createCommand);
 
@@ -92,13 +101,20 @@ Examples:
       "Global folder for global output and special handling",
       "~/.gemini/",
     )
+    .option(
+      "--target <name>",
+      "Target AI tool (gemini, opencode) - sets global folder automatically",
+      validateTarget,
+      "gemini",
+    )
     .addHelpText(
       "after",
       `
 Examples:
   $ render-claude-context cleanup
   $ render-claude-context cleanup --output-folder global --filename my-context.md
-  $ render-claude-context cleanup --output-folder origin`,
+  $ render-claude-context cleanup --target opencode
+  $ render-claude-context cleanup --target gemini --filename my-context.md`,
     )
     .action(cleanupCommand);
 
