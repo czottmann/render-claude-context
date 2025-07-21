@@ -12,9 +12,7 @@ const teardownCommand = require("./src/commands/teardown");
 const cleanupCommand = require("./src/commands/cleanup");
 const { validateFilename } = require("./src/utils/validation");
 const { validateTarget } = require("./src/utils/targetValidator");
-const { getDefaultTarget, getTargetGlobalFolder } = require(
-  "./src/utils/targets",
-);
+const { getDefaultTarget } = require("./src/utils/targets");
 
 /**
  * Main CLI application entry point.
@@ -25,7 +23,7 @@ function main() {
 
   program
     .name("render-claude-context")
-    .description(`
+    .description(
       "Collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), embeds their @imports, appends the global commands, and generates processed context files with resolved imports.\n\nThese files can then be used as context for Gemini.",
     )
     .addHelpText(

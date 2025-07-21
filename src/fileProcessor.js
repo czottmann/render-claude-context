@@ -7,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { collectClaudeFiles } = require("./fileCollector");
-const { resolveImports } = require("./importResolver");
+const { resolveImports, stripFrontMatter } = require("./importResolver");
 
 /**
  * Processes an array of CLAUDE.md file paths, reading and resolving imports for each.
@@ -63,8 +63,9 @@ function collectCommands() {
         const filePath = path.join(commandsDir, file);
         try {
           const content = fs.readFileSync(filePath, 'utf8');
-          // Resolve imports relative to the command file's directory
-          const processedContent = resolveImports(content, path.dirname(filePath));
+          // Strip front matter and resolve imports relative to the command file's directory
+          const strippedContent = stripFrontMatter(content);
+          const processedContent = resolveImports(strippedContent, path.dirname(filePath));
           return { content: processedContent, path: filePath };
         } catch (error) {
           // Skip files that can't be read

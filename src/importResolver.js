@@ -1,6 +1,7 @@
 /**
  * @fileoverview Import resolution module for processing @path import statements.
  * Recursively resolves @path imports with tilde expansion and circular dependency protection.
+ * Supports front matter stripping for Markdown files.
  */
 
 const fs = require("fs");
@@ -8,13 +9,37 @@ const path = require("path");
 const os = require("os");
 
 /**
+ * Strips front matter from content if present.
+ * Front matter is defined as content between opening and closing --- delimiters.
+ *
+ * @param {string} content - Raw file content that may contain front matter
+ * @returns {string} Content with front matter removed
+ *
+ * @example
+ * const content = `---
+ * title: My Note
+ * tags: [example]
+ * ---
+ *
+ * This is the main content.`;
+ * const stripped = stripFrontMatter(content);
+ * // Returns: "\nThis is the main content."
+ */
+function stripFrontMatter(content) {
+  // Match YAML front matter at the start of the file
+  const yamlFrontMatterRegex = /^---.+?---\n/gs;
+
+  return content.replace(yamlFrontMatterRegex, "");
+}
+
+/**
  * Resolves @path import statements in content by replacing them with the actual file contents.
  * Supports tilde expansion (~/) and recursive import resolution with circular dependency protection.
- * 
+ *
  * @param {string} content - Text content containing @path import statements
  * @param {string} fileDir - Directory path of the file containing the imports (for relative path resolution)
  * @returns {string} Content with all valid @path imports replaced by their file contents
- * 
+ *
  * @example
  * // Input content: "Some text @~/config/settings.md more text"
  * // Returns: "Some text [contents of ~/config/settings.md] more text"
@@ -28,7 +53,7 @@ function resolveImports(content, fileDir) {
   /**
    * Internal helper function that recursively processes imports in text content.
    * Handles tilde expansion, relative path resolution, and circular dependency detection.
-   * 
+   *
    * @param {string} text - Text content to process
    * @param {string} currentDir - Current directory for resolving relative paths
    * @returns {string} Text with imports resolved
@@ -55,8 +80,9 @@ function resolveImports(content, fileDir) {
         const importedContent = fs.readFileSync(fullPath, "utf8");
         const importedDir = path.dirname(fullPath);
 
-        // Recursively process imports in the imported file
-        return processImports(importedContent, importedDir);
+        // Strip front matter and recursively process imports in the imported file
+        const strippedContent = stripFrontMatter(importedContent);
+        return processImports(strippedContent, importedDir);
       } catch (error) {
         return match; // Keep original @path if read fails
       }
@@ -68,4 +94,5 @@ function resolveImports(content, fileDir) {
 
 module.exports = {
   resolveImports,
+  stripFrontMatter,
 };
