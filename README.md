@@ -4,7 +4,7 @@
 
 Tired of maintaining several sets of context and rules for Claude Code, opencode, and Gemini CLI?
 
-This node.js CLI tool processes CLAUDE.md files with hierarchical collection and recursive `@`-import resolution. Walks directory tree from current to `~/.claude/`, collecting all CLAUDE.md files and processing them with file import resolution. Saves processed context files with resolved imports next to the original CLAUDE.md files or in a specific location (configurable).
+This node.js CLI tool processes `CLAUDE.md` files with hierarchical collection and recursive `@`-import resolution. Walks directory tree from current to `~/.claude/`, collecting all `CLAUDE.md` files and processing them with file import resolution. Saves processed context files with resolved imports next to the original `CLAUDE.md` files or in a specific location (configurable).
 
 These files can then be used as context for Gemini or opencode.
 
@@ -15,7 +15,7 @@ Claude Code uses `CLAUDE.md` files which provide context for the tool. From [Ant
 > You can place `CLAUDE.md` files in several locations:
 >
 > The root of your repo, or wherever you run `claude` from (the most common usage). Name it `CLAUDE.md` and check it into git so that you can share it across sessions and with your team […]
-> Any parent of the directory where you run `claude`. This is most useful for monorepos, where you might run claude from `root/foo`, and have CLAUDE.md files in both `root/CLAUDE.md` and `root/foo/CLAUDE.md`. Both of these will be pulled into context automatically […]
+> Any parent of the directory where you run `claude`. This is most useful for monorepos, where you might run claude from `root/foo`, and have `CLAUDE.md` files in both `root/CLAUDE.md` and `root/foo/CLAUDE.md`. Both of these will be pulled into context automatically […]
 > Your home folder (`~/.claude/CLAUDE.md`), which applies it to all your *claude* sessions
 
 Other agentic tools, like **Gemini CLI** or **opencode**, work mostly the same way, but their expected file names are different (`GEMINI.md`, `AGENTS.md` etc.), and their home folder is not `~/.claude/`. Sure, I can make them read my `CLAUDE.md` files by adding that name to their settings (see [Gemini's docs about `contextFileName`](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md#available-settings-in-settingsjson) or [opencode's docs on `instructions`](https://opencode.ai/docs/config/#instructions)), but that helps only partially – because these tools differ in one big way:
@@ -32,45 +32,46 @@ So in order to streamline my dev environment, I decided to keep only my `CLAUDE.
 
 ### `create` - Generate context files with resolved imports
 
-Note: _"Single collated file"_ means _"one output file that contains every processed CLAUDE.md from project up to global folder"_.
+Note: _"Single collated file"_ means _"one output file that contains every processed `CLAUDE.md` from project up to global folder"_.
 
 ```bash
-# Create individual files next to each CLAUDE.md (default behavior) from project up to global folder
-# Uses: --output-folder origin (default), --filename CLAUDE-derived.md (default), 
-#       --target gemini (default), commands included (default)
+# Create individual `CLAUDE-derived.md` files next to each `CLAUDE.md` in the
+# folder hierarchy, from project up to global folder (`~/.gemini/` by default)
 render-claude-context create
 
-# Create single collated file in current project directory
-# Uses: --filename CLAUDE-derived.md (default), --target gemini (default), commands included
+# Create single collated `CLAUDE-derived.md` file in current project directory
 render-claude-context create --output-folder project
 
-# Create single collated file in global folder (~/.gemini/ for default gemini target)
-# Uses: --filename CLAUDE-derived.md (default), --target gemini (default), commands included
+# Create single collated `CLAUDE-derived.md` file in global folder (`~/.gemini/`
+# by default)
 render-claude-context create --output-folder global
 
-# Use custom filename with default origin mode
-# Uses: --output-folder origin (default), --target gemini (default), commands included
+# Create individual `my-context.md` files next to each `CLAUDE.md` in the folder
+# hierarchy, from project up to global folder
 render-claude-context create --filename my-context.md
 
-# Target OpenCode AI tool (sets global folder to ~/.config/opencode/)
-# Uses: --output-folder origin (default), --filename CLAUDE-derived.md (default), commands included
+# Create individual `CLAUDE-derived.md` files next to each `CLAUDE.md` in the
+# folder hierarchy, from project up to `~/.config/opencode/` global folder
 render-claude-context create --target opencode
 
-# Use custom global folder
-# Uses: --output-folder origin (default), --filename CLAUDE-derived.md (default), commands included
+# Create individual `CLAUDE-derived.md` files next to each `CLAUDE.md` in the
+# folder hierarchy, from project up to `~/my-ai-configs/` global folder
 render-claude-context create --global-folder ~/my-ai-configs/
 
-# Skip appending commands from ~/.claude/commands/ directory
-# Uses: --output-folder origin (default), --filename CLAUDE-derived.md (default), --target gemini (default)
+# Create individual `CLAUDE-derived.md` files next to each `CLAUDE.md` in the
+# folder hierarchy, from project up to global folder (`~/.gemini/` by default),
+# omitting commands from `~/.claude/commands/` directory from the output file
 render-claude-context create --no-add-commands
 
-# Create single collated file in current project directory, using custom filename
-# Uses: commands included (default)
-render-claude-context create --output-folder project --filename project-context.md
+# Create single collated `project-context.md` file in current project directory,
+render-claude-context create --output-folder project \
+  --filename project-context.md
 
-# Global mode with custom filename and no commands
-# Uses: --target gemini (default), global folder ~/.gemini/
-render-claude-context create --output-folder global --filename full-context.md --no-add-commands
+# Create single collated `full-context.md` file in global folder (`~/.gemini/`
+# by default), omitting commands from `~/.claude/commands/` directory from the
+# output file
+render-claude-context create --output-folder global --filename full-context.md \
+  --no-add-commands
 ```
 
 ### `cleanup` - Remove generated context files
@@ -80,19 +81,16 @@ Works exactly like `create` but removes the files. Imagine that!
 ### `setup` - Register context file with AI tool for auto-loading
 
 ```bash
-# Register default filename with default target (adds CLAUDE-derived.md to gemini settings)
-# Uses: --filename CLAUDE-derived.md (default), --target gemini (default)
+# Register default filename `CLAUDE-derived.md` for auto-loading with Gemini
 render-claude-context setup
 
-# Register custom filename with default gemini target
-# Uses: --target gemini (default)
+# Register default filename `my-context.md` for auto-loading with Gemini
 render-claude-context setup --filename my-context.md
 
-# Register default filename with OpenCode target (adds to opencode.json settings)
-# Uses: --filename CLAUDE-derived.md (default)
+# Register default filename `CLAUDE-derived.md` for auto-loading with opencode
 render-claude-context setup --target opencode
 
-# Register custom filename with OpenCode target
+# Register default filename `project-context.md` for auto-loading with opencode
 render-claude-context setup --target opencode --filename project-context.md
 ```
 
@@ -102,7 +100,7 @@ Works exactly like `setup` but removes the settings.
 
 ## Output Folder Modes (`--output-folder` flag)
 
-Note: _"Single collated file"_ means _"one output file that contains every processed CLAUDE.md from project up to global folder"_.
+Note: _"Single collated file"_ means _"one output file that contains every processed `CLAUDE.md` from project up to global folder"_.
 
 ### `origin` (default)
 - Creates individual files next to each `CLAUDE.md` in the directory hierarchy
@@ -154,10 +152,10 @@ npm install -g git@github.com:czottmann/render-claude-context.git
 # See usage
 render-claude-context help
 
-# Create context files (default: next to each CLAUDE.md)
+# Create context files (default: next to each `CLAUDE.md`)
 render-claude-context create
 
-# Write all processed CLAUDE.md output from project folder up to `~/.claude/`
+# Write all processed `CLAUDE.md` output from project folder up to `~/.claude/`
 # into a single `my-context.md` file in default global folder (`~/.gemini/`).
 render-claude-context create --output-folder global --filename my-context.md
 
