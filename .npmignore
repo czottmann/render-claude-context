@@ -1,0 +1,17 @@
+# Only exclude what we don't want in npm package
+node_modules/
+*.log
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude/tmp/
+**/CLAUDE-derived.md
+
+# Include everything else explicitly
+!index.js
+!src/
+!package.json
+!README.md
+!LICENSE.md
