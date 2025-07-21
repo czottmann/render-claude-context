@@ -1,38 +1,41 @@
 /**
- * @fileoverview Setup command implementation for Gemini integration.
- * Adds filename to ~/.gemini/settings.json contextFileName array for auto-loading.
+ * @fileoverview Setup command implementation for AI tool integration.
+ * Adds filename to target AI tool settings for auto-loading context files.
  */
 
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const { getTargetConfig } = require("../utils/targets");
 
 /**
- * Adds filename to Gemini contextFileName array for automatic context loading.
- * Handles both string and array contextFileName formats, ensuring array output.
+ * Adds filename to target AI tool settings array for automatic context loading.
+ * Handles both string and array context settings formats, ensuring array output.
  * 
  * @param {Object} options - Command options from Commander.js
- * @param {string} options.filename - Filename to add to Gemini settings
+ * @param {string} options.filename - Filename to add to target settings
+ * @param {string} options.target - Target AI tool name
  */
 function setupCommand(options) {
   try {
-    const settingsPath = path.join(os.homedir(), ".gemini", "settings.json");
+    const targetConfig = getTargetConfig(options.target);
+    const { settingsPath, contextKey, name } = targetConfig;
 
     let settings = {};
     if (fs.existsSync(settingsPath)) {
       settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
     }
 
-    // Ensure contextFileName is always an array
-    if (!settings.contextFileName) {
-      settings.contextFileName = [];
-    } else if (typeof settings.contextFileName === "string") {
-      settings.contextFileName = [settings.contextFileName];
+    // Ensure context key is always an array
+    if (!settings[contextKey]) {
+      settings[contextKey] = [];
+    } else if (typeof settings[contextKey] === "string") {
+      settings[contextKey] = [settings[contextKey]];
     }
 
     // Always add the specified filename to settings
-    if (!settings.contextFileName.includes(options.filename)) {
-      settings.contextFileName.push(options.filename);
+    if (!settings[contextKey].includes(options.filename)) {
+      settings[contextKey].push(options.filename);
 
       const settingsDir = path.dirname(settingsPath);
       if (!fs.existsSync(settingsDir)) {
@@ -41,11 +44,11 @@ function setupCommand(options) {
 
       fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
       console.log(
-        `Added ${options.filename} to ~/.gemini/settings.json contextFileName array`,
+        `Added ${options.filename} to ${name} ${contextKey} array at ${settingsPath}`,
       );
     } else {
       console.log(
-        `${options.filename} already exists in ~/.gemini/settings.json contextFileName array`,
+        `${options.filename} already exists in ${name} ${contextKey} array at ${settingsPath}`,
       );
     }
   } catch (error) {

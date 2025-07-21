@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * @fileoverview CLI entry point for claude-context-render.
+ * @fileoverview CLI entry point for render-claude-context.
  * Orchestrates Commander.js CLI framework with modular command implementations.
  */
 
@@ -11,6 +11,8 @@ const setupCommand = require("./src/commands/setup");
 const teardownCommand = require("./src/commands/teardown");
 const cleanupCommand = require("./src/commands/cleanup");
 const { validateFilename } = require("./src/utils/validation");
+const { validateTarget } = require("./src/utils/targetValidator");
+const { getDefaultTarget } = require("./src/utils/targets");
 
 /**
  * Main CLI application entry point.
@@ -20,22 +22,22 @@ function main() {
   const program = new Command();
 
   program
-    .name("claude-context-render")
+    .name("render-claude-context")
     .description(
-      "Collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), embeds their @imports, and generates processed context files with resolved imports.\n\nThese files can then be used as context for Gemini.",
+      "Collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), embeds their @imports, appends the global commands, and generates processed context files with resolved imports.\n\nThese files can then be used as context for Gemini.",
     )
     .addHelpText(
       "after",
       `
 Example:
 
-  Walk up from the current folder up to the home folder, find every CLAUDE.md
-  file in the hierarchy, resolve its @-imports as Claude Code would, generate a
-  CLAUDE-generated.md file next to the original, then call Gemini CLI which will
-  use them as context (assuming it was told so before using \`setup\`).
-  When gemini exits, clean up the generated files.
+  Walk up from the current folder up to the global ~/.claude/, find every
+  CLAUDE.md file in the hierarchy, resolve its @-imports as Claude Code would,
+  generate a fully rendered "CLAUDE-derived.md" file next to the original, then
+  call Gemini CLI which will use them as context (assuming it was told so before
+  using \`setup\`). When gemini exits, clean up the generated files.
 
-  $ claude-context-render create; gemini; claude-context-render cleanup
+  $ render-claude-context create; gemini; render-claude-context cleanup
   `,
     )
     .version("1.0.0");
@@ -43,12 +45,23 @@ Example:
   program
     .command("create")
     .description(
-      "Collect CLAUDE.md files from current directory up to home folder, resolve @-imports recursively, and write a context output file to specified location",
+      "Collect CLAUDE.md files from current directory up to ~/, resolve @-imports recursively, and write a context output file to specified location",
     )
     .option(
       "--output-folder <mode>",
-      "Where to write output:\n- global (~/.claude/, one collated file)\n- project (cwd, one collated file)\n- origin (single files, next to each found CLAUDE.md file)",
+      "Where to write output:\n- global (global folder (see below), one collated file)\n- project (cwd, one collated file)\n- origin (single files, next to each found CLAUDE.md file)",
       "origin",
+    )
+    .option(
+      "--global-folder <path>",
+      "Global folder for global output and special handling",
+      "~/.gemini/",
+    )
+    .option(
+      "--target <name>",
+      "Target AI tool (gemini, opencode) - sets global folder automatically",
+      validateTarget,
+      "gemini",
     )
     .option(
       "--filename <name>",
@@ -56,55 +69,20 @@ Example:
       validateFilename,
       "CLAUDE-derived.md",
     )
+    .option(
+      "--no-add-commands",
+      "Skip appending commands from ~/.claude/commands/ directory",
+    )
     .addHelpText(
       "after",
       `
 Examples:
-  $ claude-context-render create
-  $ claude-context-render create --output-folder global --filename my-context.md
-  $ claude-context-render create --output-folder origin`,
+  $ render-claude-context create
+  $ render-claude-context create --output-folder global --filename my-context.md
+  $ render-claude-context create --target opencode
+  $ render-claude-context create --no-add-commands --filename my-context.md`,
     )
     .action(createCommand);
-
-  program
-    .command("setup")
-    .description(
-      "Add output filename to ~/.gemini/settings.json contextFileName array so Gemini auto-loads the generated context files",
-    )
-    .option(
-      "--filename <name>",
-      "Name of context file to register",
-      validateFilename,
-      "CLAUDE-derived.md",
-    )
-    .addHelpText(
-      "after",
-      `
-Examples:
-  $ claude-context-render setup
-  $ claude-context-render setup --filename my-context.md`,
-    )
-    .action(setupCommand);
-
-  program
-    .command("teardown")
-    .description(
-      "Remove filename from ~/.gemini/settings.json contextFileName array to stop Gemini auto-loading",
-    )
-    .option(
-      "--filename <name>",
-      "Name of context file to unregister",
-      validateFilename,
-      "CLAUDE-derived.md",
-    )
-    .addHelpText(
-      "after",
-      `
-Examples:
-  $ claude-context-render teardown
-  $ claude-context-render teardown --filename my-context.md`,
-    )
-    .action(teardownCommand);
 
   program
     .command("cleanup")
@@ -120,15 +98,83 @@ Examples:
       validateFilename,
       "CLAUDE-derived.md",
     )
+    .option(
+      "--global-folder <path>",
+      "Global folder for global output and special handling",
+      "~/.gemini/",
+    )
+    .option(
+      "--target <name>",
+      "Target AI tool (gemini, opencode) - sets global folder automatically",
+      validateTarget,
+      "gemini",
+    )
     .addHelpText(
       "after",
       `
 Examples:
-  $ claude-context-render cleanup
-  $ claude-context-render cleanup --output-folder global --filename my-context.md
-  $ claude-context-render cleanup --output-folder origin`,
+  $ render-claude-context cleanup
+  $ render-claude-context cleanup --output-folder global --filename my-context.md
+  $ render-claude-context cleanup --target opencode
+  $ render-claude-context cleanup --target gemini --filename my-context.md`,
     )
     .action(cleanupCommand);
+
+  program
+    .command("setup")
+    .description(
+      "Add output filename to target AI tool settings for auto-loading generated context files",
+    )
+    .option(
+      "--filename <name>",
+      "Name of context file to register",
+      validateFilename,
+      "CLAUDE-derived.md",
+    )
+    .option(
+      "--target <name>",
+      "Target AI tool (gemini, opencode)",
+      validateTarget,
+      getDefaultTarget(),
+    )
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ render-claude-context setup
+  $ render-claude-context setup --filename my-context.md
+  $ render-claude-context setup --target opencode
+  $ render-claude-context setup --filename my-context.md --target opencode`,
+    )
+    .action(setupCommand);
+
+  program
+    .command("teardown")
+    .description(
+      "Remove filename from target AI tool settings to stop auto-loading",
+    )
+    .option(
+      "--filename <name>",
+      "Name of context file to unregister",
+      validateFilename,
+      "CLAUDE-derived.md",
+    )
+    .option(
+      "--target <name>",
+      "Target AI tool (gemini, opencode)",
+      validateTarget,
+      getDefaultTarget(),
+    )
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ render-claude-context teardown
+  $ render-claude-context teardown --filename my-context.md
+  $ render-claude-context teardown --target opencode
+  $ render-claude-context teardown --filename my-context.md --target opencode`,
+    )
+    .action(teardownCommand);
 
   program.parse();
 }
