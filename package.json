@@ -4,12 +4,16 @@
   "description": "A tool that collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), resolves/embeds their @-imports and commands, and generates processed context files can then be used as context for other agents.",
   "main": "index.js",
   "bin": {
-    "render-claude-context": "./index.js"
+    "render-claude-context": "index.js"
   },
-  "scripts": {
-    "build": "node index.js",
-    "test": "node index.js"
-  },
+  "files": [
+    "index.js",
+    "src/",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "scripts": {},
   "keywords": [
     "cli",
     "claude",
@@ -21,5 +25,17 @@
   "license": "MIT",
   "dependencies": {
     "commander": "^14.0.0"
-  }
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/czottmann/render-claude-context.git"
+  },
+  "bugs": {
+    "url": "https://github.com/czottmann/render-claude-context/issues"
+  },
+  "homepage": "https://github.com/czottmann/render-claude-context#readme"
 }
