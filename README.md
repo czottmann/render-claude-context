@@ -2,7 +2,7 @@
 
 # render-claude-context
 
-Tired of maintaining two sets of context and rules for Claude Code and Gemini CLI?
+Tired of maintaining several sets of context and rules for Claude Code, opencode, and Gemini CLI?
 
 This node.js CLI tool processes CLAUDE.md files with hierarchical collection and recursive `@`-import resolution. Walks directory tree from current to `~/.claude/`, collecting all CLAUDE.md files and processing them with file import resolution. Saves processed context files with resolved imports next to the original CLAUDE.md files or in a specific location (configurable).
 
@@ -20,7 +20,7 @@ Claude Code uses `CLAUDE.md` files which provide context for the tool. From [Ant
 
 Other agentic tools, like **Gemini CLI** or **opencode**, work mostly the same way, but their expected file names are different (`GEMINI.md`, `AGENTS.md` etc.), and their home folder is not `~/.claude/`. Sure, I can make them read my `CLAUDE.md` files by adding that name to their settings (see [Gemini's docs about `contextFileName`](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md#available-settings-in-settingsjson) or [opencode's docs on `instructions`](https://opencode.ai/docs/config/#instructions)), but that helps only partially – because these tools differ in one big way:
 
-They all read their rules in a different way.
+They all read rule files in different ways.
 
 For example, both Claude Code and Gemini can `@`-import other files, meaning they will replace `@./some/file.md` directives in their context file with the contents of the referenced file. But while Claude Code will happily import files from anywhere on your device, Gemini **only** allows files in the current directory. And opencode works in a different way still.
 
@@ -42,39 +42,52 @@ gemini
 render-claude-context cleanup
 ```
 
-### opencode, with minimal amount of fuss
+### opencode, zero f's given
 
 ```bash
 # Every day use: No extra setup, just generate `AGENTS.md` on the fly
-render-claude-context create --filename AGENTS.md
+# 🚨 THIS WILL OVERWRITE ANY EXISTING `AGENTS.md` FILE
+render-claude-context create --filename AGENTS.md --target opencode
 opencode
-render-claude-context cleanup --filename AGENTS.md
+render-claude-context cleanup --filename AGENTS.md --target opencode
+```
+
+## Installation
+
+```bash
+npm install -g git@github.com:czottmann/render-claude-context.git
 ```
 
 ## Quick Build Commands
 
 ```bash
-# Install dependencies and run
-npm install && node index.js help
-
-# Global installation
-npm install -g . && render-claude-context help
+# See usage
+render-claude-context help
 
 # Create context files (default: next to each CLAUDE.md)
 render-claude-context create
 
-# Create with specific mode and filename
+# Write all processed CLAUDE.md output from project folder up to `~/.claude/`
+# into a single `my-context.md` file in default global folder (`~/.gemini/`).
 render-claude-context create --output-folder global --filename my-context.md
 
 # Create but write the processed version of the Claude file found in 
 # `~/.claude/CLAUDE.md` to a custom global folder
-render-claude-context create --global-folder ~/.config/opencode/
-render-claude-context cleanup --global-folder ~/.config/opencode/
+render-claude-context create --global-folder ~/Desktop/
+render-claude-context cleanup --global-folder ~/Desktop/
 
 # Gemini integration setup/teardown
-render-claude-context setup --filename my-context.md
-render-claude-context teardown --filename my-context.md
+render-claude-context setup --filename my-context.md --target gemini
+render-claude-context teardown --filename my-context.md --target gemini
 ```
+
+## Author
+
+Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com/czottmann
+
+> ### 💡 Did you know?
+>
+> I make Shortcuts-related macOS & iOS productivity apps like [Actions For Obsidian](https://actions.work/actions-for-obsidian), [Browser Actions](https://actions.work/browser-actions) (which adds Shortcuts support for several major browsers), and [BarCuts](https://actions.work/barcuts) (a surprisingly useful contextual Shortcuts launcher). Check them out!
 
 ## Key Files
 
@@ -96,7 +109,3 @@ render-claude-context teardown --filename my-context.md
 - **[Files Catalog](docs/files.md)** - Complete file organization, dependencies, naming conventions
 
 LLMs will find specific file paths, line numbers for key functions, actual code examples from the codebase, and practical guidance for understanding and extending the hierarchical file processing system.
-
-## Author
-
-Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com/czottmann
