@@ -28,6 +28,95 @@ But I switch agents quite a bit, and it's cumbersome to copy and paste my rules 
 
 So in order to streamline my dev environment, I decided to keep only my `CLAUDE.md`'s in order, and make Gemini and opencode play ball. **Now I only have to set up context once (for Claude) – and have the other agents reuse it without me having to jump through hoops.**
 
+## Showcase
+
+### `create` - Generate context files with resolved imports
+
+Note: _"Single collated file"_ means _"one output file that contains every processed CLAUDE.md from project up to global folder"_.
+
+```bash
+# Create individual files next to each CLAUDE.md (default behavior) from project up to global folder
+# Uses: --output-folder origin (default), --filename CLAUDE-derived.md (default), 
+#       --target gemini (default), commands included (default)
+render-claude-context create
+
+# Create single collated file in current project directory
+# Uses: --filename CLAUDE-derived.md (default), --target gemini (default), commands included
+render-claude-context create --output-folder project
+
+# Create single collated file in global folder (~/.gemini/ for default gemini target)
+# Uses: --filename CLAUDE-derived.md (default), --target gemini (default), commands included
+render-claude-context create --output-folder global
+
+# Use custom filename with default origin mode
+# Uses: --output-folder origin (default), --target gemini (default), commands included
+render-claude-context create --filename my-context.md
+
+# Target OpenCode AI tool (sets global folder to ~/.config/opencode/)
+# Uses: --output-folder origin (default), --filename CLAUDE-derived.md (default), commands included
+render-claude-context create --target opencode
+
+# Use custom global folder
+# Uses: --output-folder origin (default), --filename CLAUDE-derived.md (default), commands included
+render-claude-context create --global-folder ~/my-ai-configs/
+
+# Skip appending commands from ~/.claude/commands/ directory
+# Uses: --output-folder origin (default), --filename CLAUDE-derived.md (default), --target gemini (default)
+render-claude-context create --no-add-commands
+
+# Create single collated file in current project directory, using custom filename
+# Uses: commands included (default)
+render-claude-context create --output-folder project --filename project-context.md
+
+# Global mode with custom filename and no commands
+# Uses: --target gemini (default), global folder ~/.gemini/
+render-claude-context create --output-folder global --filename full-context.md --no-add-commands
+```
+
+### `cleanup` - Remove generated context files
+
+Works exactly like `create` but removes the files. Imagine that!
+
+### `setup` - Register context file with AI tool for auto-loading
+
+```bash
+# Register default filename with default target (adds CLAUDE-derived.md to gemini settings)
+# Uses: --filename CLAUDE-derived.md (default), --target gemini (default)
+render-claude-context setup
+
+# Register custom filename with default gemini target
+# Uses: --target gemini (default)
+render-claude-context setup --filename my-context.md
+
+# Register default filename with OpenCode target (adds to opencode.json settings)
+# Uses: --filename CLAUDE-derived.md (default)
+render-claude-context setup --target opencode
+
+# Register custom filename with OpenCode target
+render-claude-context setup --target opencode --filename project-context.md
+```
+
+### `teardown` - Unregister context file from AI tool
+
+Works exactly like `setup` but removes the settings.
+
+## Output Folder Modes (`--output-folder` flag)
+
+Note: _"Single collated file"_ means _"one output file that contains every processed CLAUDE.md from project up to global folder"_.
+
+### `origin` (default)
+- Creates individual files next to each `CLAUDE.md` in the directory hierarchy
+- Special case: `~/.claude/CLAUDE.md` output goes to target's global folder
+- Most flexible for development workflows
+
+### `project`
+- Creates single collated file in current working directory, containing all `CLAUDE.md` output from project folder on up, including `~/.claude/CLAUDE.md`
+- Good for project-specific context generation
+
+### `global`
+- Creates single collated file in target's global folder
+- Best for persistent AI tool integration
+
 ## Examples
 
 ### For Gemini
@@ -42,11 +131,12 @@ gemini
 render-claude-context cleanup
 ```
 
-### opencode, zero f's given
+### opencode, 0FG mode ("zero f's given")
 
 ```bash
-# Every day use: No extra setup, just generate `AGENTS.md` on the fly
-# 🚨 THIS WILL OVERWRITE ANY EXISTING `AGENTS.md` FILE
+# No prior "setup" necessary, just generate `AGENTS.md` on the fly
+# 🚨 THIS WILL OVERWRITE ANY EXISTING `AGENTS.md` FILES FROM PROJECT UP TO
+# 🚨 GLOBAL FOLDER 
 render-claude-context create --filename AGENTS.md --target opencode
 opencode
 render-claude-context cleanup --filename AGENTS.md --target opencode
@@ -109,3 +199,4 @@ Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com
 - **[Files Catalog](docs/files.md)** - Complete file organization, dependencies, naming conventions
 
 LLMs will find specific file paths, line numbers for key functions, actual code examples from the codebase, and practical guidance for understanding and extending the hierarchical file processing system.
+
