@@ -1,107 +1,125 @@
-<!-- Generated: 2025-07-21T10:24:41Z -->
+<!-- Generated: 2025-07-21T19:27:18+02:00 -->
 
 # Files Catalog
 
-This Node.js CLI tool uses a modular architecture with Commander.js for command handling and separate modules for core functionality. The codebase follows modern npm CLI conventions with clear separation between command handling, file processing, and utility functions.
+This Node.js CLI tool uses a modular architecture to collect CLAUDE.md files from directory hierarchies, resolve @-imports recursively, and generate processed context files. The codebase separates concerns across logical modules with a Commander.js-based CLI interface.
 
-The project maintains a clean structure with source files organized by function - commands in `src/commands/`, core processing logic in dedicated modules, and comprehensive documentation. All functionality is built on Node.js standard library with minimal external dependencies.
+The project follows standard Node.js conventions with source files in `src/`, commands in `src/commands/`, utilities in `src/utils/`, and documentation in `docs/`. Generated files are created alongside originals or in configured global folders based on output mode selection.
+
+File organization emphasizes separation between CLI orchestration (index.js), core processing modules (src/), and command implementations that handle different workflow scenarios for context file generation and cleanup.
 
 ## Core Source Files
 
-**index.js** - Main CLI entry point with Commander.js integration
-- Lines 1-10: Dependencies and command imports
-- Lines 11-19: CLI program setup and version configuration
-- Lines 21-61: Command definitions (help, create, setup, teardown, cleanup)
-- Lines 70-75: Module re-exports for backwards compatibility
+**Main Entry Point** - `index.js` (lines 1-196)
+- CLI application setup with Commander.js framework (lines 8-14)
+- Command registration with options and validation (lines 45-177)  
+- Module re-exports for backwards compatibility (lines 190-195)
+- Executable with shebang for direct invocation (line 1)
 
-**src/fileCollector.js** - Directory traversal and CLAUDE.md file discovery
-- Lines 5-28: `collectClaudeFiles()` walks up directory tree from current to home
-- Lines 21-25: Adds `~/.claude/CLAUDE.md` if it exists
-- Exports: collectClaudeFiles function
+**File Collection** - `src/fileCollector.js` (lines 23-48)
+- Directory tree walking from current to home directory (lines 28-39)
+- CLAUDE.md file discovery with existence checking (lines 29-31)
+- Global ~/.claude/CLAUDE.md inclusion (lines 42-45)
 
-**src/fileProcessor.js** - File processing pipeline and output generation
-- Lines 7-23: `processFiles()` reads and processes file contents
-- Lines 25-46: `generateContextContent()` creates collated output with HTML separators
-- Lines 48-52: `generateContextContentForFile()` processes single file
-- Lines 54-60: `writeToFile()` utility for safe file writing
-- Lines 62-76: `getOutputPath()` determines output location by mode
-- Lines 78-101: `handleOriginMode()` creates multiple files next to source
+**Import Resolution** - `src/importResolver.js` (lines 48-93)
+- @-path import regex processing with tilde expansion (lines 49-92)
+- Recursive import resolution with circular dependency protection (lines 51-90)
+- Front matter stripping for Markdown files (lines 28-33)
 
-**src/importResolver.js** - Recursive import resolution with `@` syntax
-- Lines 5-40: `resolveImports()` processes `@path` imports recursively
-- Lines 10-37: Import processing with tilde expansion and circular detection
-- Lines 14-19: Tilde expansion for home directory paths
-- Lines 21-24: File existence validation and circular import prevention
+**File Processing** - `src/fileProcessor.js` (lines 18-259)
+- Content generation with reversed file order (lines 113-142)
+- Command collection from ~/.claude/commands/ (lines 42-103)
+- Multiple output modes: origin, global, project (lines 180-250)
+- HTML comment separators for file boundaries (lines 125-131)
 
 ## Platform Implementation
 
-**src/commands/create.js** - File generation command implementation
-- Lines 8-25: Create command logic with origin/global/project mode handling
-- Integrates fileProcessor functions for content generation
+**Create Command** - `src/commands/create.js` (lines 25-60)
+- Context file generation with import resolution
+- Output mode handling (origin/global/project)
+- Target-specific global folder configuration
+- Command inclusion/exclusion control
 
-**src/commands/help.js** - Comprehensive help system with command-specific documentation
-- Lines 1-102: Command-specific help text for create, setup, teardown, cleanup
-- Lines 82-101: General help overview with command listing
+**Cleanup Command** - `src/commands/cleanup.js`
+- Generated file removal from filesystem
+- Multiple output mode cleanup support
+- Target-aware file location resolution
 
-**src/commands/setup.js** - Gemini CLI integration setup
-**src/commands/teardown.js** - Gemini CLI integration removal
-**src/commands/cleanup.js** - Generated file cleanup functionality
+**Setup/Teardown Commands** - `src/commands/setup.js`, `src/commands/teardown.js`
+- AI tool configuration management
+- Context file auto-loading registration
+- Target-specific configuration handling
 
-**src/utils/validation.js** - Input validation utilities
-- Lines 1-7: `validateFilename()` prevents overwriting source CLAUDE.md files
+**Utility Modules** - `src/utils/`
+- `validation.js` - Filename validation and sanitization
+- `targetValidator.js` - AI tool target validation (gemini/opencode)
+- `targets.js` - Target configuration and global folder mapping
 
 ## Build System
 
-**package.json** - NPM package configuration with CLI binary setup
-- Lines 6-8: Binary configuration mapping `render-claude-context` to `index.js`
-- Lines 9-12: Build and test scripts
-- Lines 20-22: Commander.js dependency (^14.0.0)
+**Package Configuration** - `package.json` (lines 1-25)
+- CLI binary definition with executable path (lines 6-8)
+- Commander.js dependency for CLI framework (lines 22-24)
+- Build and test script definitions (lines 9-12)
 
-**package-lock.json** - Dependency lock file for consistent installations
+**Dependencies** - `node_modules/`, `package-lock.json`
+- Commander.js v14.0.0 for CLI argument parsing
+- Standard Node.js modules (fs, path, os) for file operations
 
 ## Configuration
 
-**CLAUDE.md** - Project-specific context and instructions for Claude Code
-- Project overview and architecture documentation
-- File processing system explanation and import syntax guide
-- Key implementation details with line number references
+**Project Instructions** - `CLAUDE.md` (lines 1-100)
+- AI assistant guidance and project overview
+- Core architecture documentation with file references
+- Development workflow and command examples
 
-**README.md** - Main project documentation and usage instructions
+**Generated Files** - `CLAUDE-derived.md`, context files
+- Processed output with resolved imports and HTML separators
+- Location varies by output mode (origin/global/project)
+- Automatic cleanup support through cleanup command
 
-**TODO.md** - Development task tracking and feature roadmap
-
-**CLAUDE-derived.md** - Generated context file example/output
+**Settings Files** - `.claude/settings.local.json`
+- Local Claude Code configuration overrides
+- Git-tracked for project-specific settings
 
 ## Documentation
 
-**docs/project-overview.md** - High-level project description and key files
-**docs/architecture.md** - System design and component relationships
-**docs/build-system.md** - Build configuration and development workflows
-**docs/testing.md** - Test strategies and execution instructions
-**docs/development.md** - Development patterns and code style guidelines
-**docs/deployment.md** - Distribution and installation procedures
+**User Documentation** - `README.md`
+- Installation and usage instructions
+- Command examples and workflow guidance
+- Integration with AI tools (Gemini, OpenCode)
+
+**Architecture Documentation** - `docs/` directory
+- `architecture.md` - System design and component relationships
+- `build-system.md` - Build configuration and commands  
+- `deployment.md` - Package distribution and installation
+- `development.md` - Code patterns and development workflow
+- `testing.md` - Test approach and validation methods
+- `project-overview.md` - High-level project description
+
+**Change History** - `CHANGELOG.md`
+- Version history and feature additions
+- Breaking changes and upgrade notes
+
+**Legal** - `LICENSE.md`
+- MIT license terms and conditions
 
 ## Reference
 
 **File Organization Patterns**:
-- Modular architecture with `src/` containing all implementation
-- Commands separated in `src/commands/` by functionality
-- Utilities in `src/utils/` for reusable functions
-- Documentation in `docs/` with specific purpose files
+- Commands in `src/commands/` with descriptive names
+- Utilities in `src/utils/` for shared functionality  
+- Documentation in `docs/` with topic-based organization
+- Main logic in `src/` root for core processing modules
 
 **Naming Conventions**:
-- Commands: lowercase verbs (create.js, setup.js, teardown.js, cleanup.js)
-- Modules: camelCase describing function (fileCollector.js, importResolver.js)
-- Documentation: kebab-case descriptive names in docs/ folder
+- camelCase for JavaScript functions and variables
+- kebab-case for CLI command names and file names
+- Descriptive module names matching their primary function
 
 **Dependency Relationships**:
-- `index.js` → Commander.js + all src/commands/* modules
-- `src/commands/*` → Core processing modules (fileProcessor, etc.)
-- `src/fileProcessor.js` → fileCollector.js + importResolver.js
-- `src/importResolver.js` → Node.js fs, path, os modules only
-- All modules use Node.js standard library except Commander.js CLI framework
-
-**Module Exports**:
-- Each src/ module exports specific functions via module.exports
-- `index.js` re-exports all core functions for backwards compatibility
-- Command modules export single command handler functions
+- `index.js` imports all command modules and utilities
+- Commands depend on core modules (fileProcessor, etc.)
+- Core modules have minimal dependencies (Node.js built-ins only)
+- Utilities provide validation and configuration logic
+- Generated files reference originals through HTML comments

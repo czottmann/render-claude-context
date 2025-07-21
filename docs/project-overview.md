@@ -1,36 +1,39 @@
-<!-- Generated: 2025-07-21T10:24:41Z -->
+<!-- Generated: 2025-07-21T19:27:18+02:00 -->
 
 # Project Overview
 
-render-claude-context is a Node.js CLI tool that processes CLAUDE.md files with a hierarchical collection system and recursive import resolution. The tool walks up the directory tree from the current working directory to the user's home folder, collecting all `CLAUDE.md` files and processing them with file import resolution using `@` syntax. It provides multiple output modes, Gemini integration for automatic context loading, and comprehensive file management commands.
+render-claude-context is a Node.js CLI tool that collects CLAUDE.md files hierarchically from the current directory up to the user's home directory, resolving `@path` imports recursively to generate processed context files for AI agents. The tool enables building complex context hierarchies where project-specific files can import and extend configurations from parent directories, external files, or global user configurations in `~/.claude/`.
 
-The architecture is modular with separate concerns: file collection traverses directories upward, import resolution processes `@` references recursively with circular import protection, and file processing generates output in reverse collection order. This enables building complex context hierarchies where local CLAUDE.md files can import and extend configurations from parent directories, external files, or global configurations.
+The modular architecture separates concerns across dedicated components: file collection via upward directory traversal (`src/fileCollector.js`), recursive import resolution with circular protection (`src/importResolver.js`), content generation with multiple output modes (`src/fileProcessor.js`), and command routing through a Commander.js CLI interface (`index.js`). Files are processed in reverse collection order with HTML comment separators, allowing higher-level configurations to take precedence.
 
-The tool supports three output modes (global, project, origin), Gemini settings integration for automatic context loading, and includes setup/teardown commands for complete workflow management. It's designed for hierarchical configuration management where higher-level directories can override or extend lower-level configurations through the CLAUDE.md file system.
+Supports seamless integration with AI tools like Gemini and opencode through target-specific global folder mapping, automatic command inclusion from `~/.claude/commands/`, and setup/teardown workflows for complete AI context management. Commands include create, cleanup, setup, and teardown for end-to-end context file lifecycle management.
 
 ## Key Files
 
-**Main Entry Point** - `index.js` (lines 11-75): CLI orchestration with Commander.js, command routing, and module re-exports
-**Package Configuration** - `package.json` (lines 6-7): Binary configuration for `render-claude-context` CLI tool
-**File Collection** - `src/fileCollector.js` (lines 5-27): Directory traversal and CLAUDE.md discovery logic
-**Import Resolution** - `src/importResolver.js` (lines 5-39): Recursive `@` import processing with circular protection
-**File Processing** - `src/fileProcessor.js` (lines 25-101): Content generation, output modes, and file writing
-**Command Implementations** - `src/commands/`: Individual command handlers for create, setup, teardown, cleanup
+**CLI Entry Point** - `index.js` (lines 21-179): Commander.js CLI setup with create, setup, teardown, cleanup commands and comprehensive option validation
+**Binary Configuration** - `package.json` (lines 6-7): NPM bin entry mapping `render-claude-context` command to `./index.js` executable with shebang
+**File Discovery** - `src/fileCollector.js` (lines 23-47): Hierarchical directory traversal from current working directory up to home directory, including `~/.claude/CLAUDE.md`
+**Import Resolution** - `src/importResolver.js` (lines 48-93): Recursive `@path` import processing with tilde expansion (`~/`), front matter stripping, and circular dependency protection
+**Content Generation** - `src/fileProcessor.js` (lines 114-143): Context assembly with HTML comment file separators, automatic command inclusion from `~/.claude/commands/`, and reverse-order processing
+**Command Implementation** - `src/commands/create.js` (lines 25-56): Output mode routing (origin/global/project) with target-specific global folder resolution and mutual exclusion validation
+**Target Configuration** - `src/utils/targets.js` (lines 13-32): AI tool configuration mapping for Gemini (`~/.gemini/`) and opencode (`~/.config/opencode/`) with settings paths
+**Validation Utilities** - `src/utils/validation.js`, `src/utils/targetValidator.js`: Input validation for filenames and target names with error handling
 
 ## Technology Stack
 
-**Runtime Environment** - Node.js with Commander.js framework for CLI structure (`package.json` line 21)
-**Core Dependencies** - Commander v14.0.0 for command-line interface (`index.js` lines 3, 12-25)
-**File System Operations** - Built-in `fs` module for file I/O (`src/fileCollector.js` lines 1, 11, 23)
-**Path Resolution** - Built-in `path` module for cross-platform paths (`src/importResolver.js` lines 2, 16, 18)
-**OS Integration** - Built-in `os` module for home directory detection (`src/fileCollector.js` lines 3, 22)
-**Import Processing** - Regex-based `@` import syntax with tilde expansion (`src/importResolver.js` lines 6, 15-16)
+**CLI Framework** - Commander.js v14.0.0 for argument parsing, command structure, help generation, and option validation (`index.js` line 8, `package.json` line 23)
+**File Operations** - Node.js built-in `fs` module for synchronous file reading, directory scanning, existence checking, and symlink handling (`src/fileCollector.js` lines 6, 30, 43; `src/fileProcessor.js` lines 52-53)
+**Path Handling** - Built-in `path` module for cross-platform path resolution, joining, dirname operations, and absolute path conversion (`src/importResolver.js` lines 8, 67, 70; `src/fileProcessor.js` lines 164, 186)
+**System Integration** - Built-in `os` module for home directory detection, tilde expansion, and cross-platform compatibility (`src/fileCollector.js` line 8, `src/importResolver.js` line 67, `src/utils/targets.js` line 16)
+**Pattern Matching** - Regex-based `@path` import detection and YAML front matter stripping with multiline support (`src/importResolver.js` lines 49, 30)
+**Content Processing** - Recursive import resolution with Set-based circular dependency protection and front matter handling (`src/importResolver.js` lines 51, 74-75, 84)
 
 ## Platform Support
 
-**Requirements** - Node.js runtime (any recent version supporting ES6+ features)
-**Platform Compatibility** - Cross-platform via Node.js built-in modules and Commander.js
-**Installation Methods** - Global NPM installation (`npm install -g .`) or direct execution (`node index.js`)
-**Binary Configuration** - Package.json bin field maps `render-claude-context` to `./index.js` (`package.json` lines 6-7)
-**Execution** - Shebang line enables direct execution (`index.js` line 1: `#!/usr/bin/env node`)
-**Output Locations** - Supports multiple output modes: configurable global folder (default `~/.gemini/`), current directory (project), or alongside source files (origin)
+**Requirements** - Node.js runtime with ES6+ support for const, destructuring, template literals, and built-in fs/path/os modules
+**Cross-Platform** - Works on Windows, macOS, Linux via Node.js built-ins with platform-specific path handling (`src/importResolver.js` line 70, `src/fileProcessor.js` line 186)
+**Installation** - Global installation via `npm install -g .` creates `render-claude-context` command, or direct execution `node index.js` (`package.json` lines 6-7)
+**Binary Setup** - Shebang header for Unix-like systems (`index.js` line 1) with package.json bin mapping for cross-platform executable installation
+**Output Modes** - Three modes: global folder (configurable, default `~/.gemini/`), project folder (current working directory), or origin mode (individual files next to each CLAUDE.md)
+**AI Tool Integration** - Native support for Gemini (`~/.gemini/settings.json`) and opencode (`~/.config/opencode/opencode.json`) with automatic folder detection (`src/utils/targets.js`)
+**Target Configuration** - `--target` option automatically sets appropriate global folders and settings paths for supported AI tools, with mutual exclusion validation for `--global-folder`

@@ -190,10 +190,7 @@ Carlo Zottmann, <carlo@zottmann.dev>, https://c.zottmann.dev, https://github.com
 
 - **[Project Overview](docs/project-overview.md)** - Purpose, technology stack, platform support with file references
 - **[Architecture](docs/architecture.md)** - Component map, data flow, key functions with line numbers
-- **[Build System](docs/build-system.md)** - NPM workflows, dependency setup, platform configuration
-- **[Testing](docs/testing.md)** - Module exports for unit testing, CLI integration testing
 - **[Development](docs/development.md)** - Code patterns, Commander.js structure, debugging workflows
-- **[Deployment](docs/deployment.md)** - Installation methods, output modes, external system integration
 - **[Files Catalog](docs/files.md)** - Complete file organization, dependencies, naming conventions
 
 LLMs will find specific file paths, line numbers for key functions, actual code examples from the codebase, and practical guidance for understanding and extending the hierarchical file processing system.
