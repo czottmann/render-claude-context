@@ -20,6 +20,7 @@ const { getTargetGlobalFolder } = require("../utils/targets");
  * @param {string} options.filename - Output filename to use
  * @param {string} [options.globalFolder] - Global folder for global output and special handling
  * @param {string} [options.target] - Target AI tool name (sets globalFolder automatically)
+ * @param {boolean} [options.noAddCommands] - Skip appending commands from ~/.claude/commands/
  */
 function createCommand(options) {
   try {
@@ -34,12 +35,15 @@ function createCommand(options) {
       ? getTargetGlobalFolder(options.target)
       : options.globalFolder;
 
+    // Determine whether to add commands (default true, disabled with --no-add-commands)
+    const addCommands = !options.noAddCommands;
+
     if (options.outputFolder === "origin") {
-      const filesCreated = handleOriginMode(options.filename, process.cwd(), globalFolder);
+      const filesCreated = handleOriginMode(options.filename, process.cwd(), globalFolder, addCommands);
       console.log(`Created ${filesCreated.length} context file(s):`);
       filesCreated.forEach((file) => console.log(`  ${file}`));
     } else {
-      const content = generateContextContent();
+      const content = generateContextContent(process.cwd(), addCommands);
       const outputPath = getOutputPath(options.outputFolder, options.filename, process.cwd(), globalFolder);
       writeToFile(content, outputPath);
       console.log(`Created 1 context file(s):`);

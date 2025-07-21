@@ -8,11 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2025-07-21
 
 ### Added
-- `setup` and `teardown` commands
+- `setup` and `teardown` commands:
     - new `--target` option for multi-platform AI tool support (gemini, opencode)
 - `create` and `cleanup` commands:
     - new `--global-folder` option to configure output directory for global rules (defaults to `~/.gemini/`)
     - new `--target` option with automatic global folder selection and mutual exclusion with `--global-folder`
+- `create` command:
+    - automatic inclusion of commands from `~/.claude/commands/` directory, can be disabled with `--no-add-commands` flag
 
 ### Changed
 - **Renamed tool from "claude-context-render" to "render-claude-context".**

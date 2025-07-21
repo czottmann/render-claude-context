@@ -25,8 +25,8 @@ function main() {
 
   program
     .name("render-claude-context")
-    .description(
-      "Collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), embeds their @imports, and generates processed context files with resolved imports.\n\nThese files can then be used as context for Gemini.",
+    .description(`
+      "Collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), embeds their @imports, appends the global commands, and generates processed context files with resolved imports.\n\nThese files can then be used as context for Gemini.",
     )
     .addHelpText(
       "after",
@@ -71,6 +71,10 @@ Example:
       validateFilename,
       "CLAUDE-derived.md",
     )
+    .option(
+      "--no-add-commands",
+      "Skip appending commands from ~/.claude/commands/ directory",
+    )
     .addHelpText(
       "after",
       `
@@ -78,7 +82,7 @@ Examples:
   $ render-claude-context create
   $ render-claude-context create --output-folder global --filename my-context.md
   $ render-claude-context create --target opencode
-  $ render-claude-context create --target gemini --filename my-context.md`,
+  $ render-claude-context create --no-add-commands --filename my-context.md`,
     )
     .action(createCommand);
 
