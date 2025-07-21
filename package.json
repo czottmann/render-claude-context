@@ -6,6 +6,13 @@
   "bin": {
     "render-claude-context": "./index.js"
   },
+  "files": [
+    "index.js",
+    "src/",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
   "scripts": {
     "build": "node index.js",
     "test": "node index.js"
