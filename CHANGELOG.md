@@ -20,9 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Renamed tool from "claude-context-render" to "render-claude-context".**
-- Updated documentation with new option examples and usage patterns
 - `create` command:
     - front matter stripping from imported files (both .md and .mdc) and command files
+- Updated documentation with new option examples and usage patterns
 
 ---
 
