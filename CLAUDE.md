@@ -58,3 +58,8 @@ This is a Node.js CLI tool that processes CLAUDE.md files with a hierarchical co
 - Circular imports prevented with Set tracking
 
 This tool is designed for hierarchical configuration management where higher-level directories can override or extend lower-level configurations through the CLAUDE.md file system.
+
+
+## Files In This Project
+
+@./.claude/tmp/project-files.md
