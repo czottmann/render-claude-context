@@ -33,4 +33,4 @@ The tool supports three output modes (global, project, origin), Gemini settings 
 **Installation Methods** - Global NPM installation (`npm install -g .`) or direct execution (`node index.js`)
 **Binary Configuration** - Package.json bin field maps `render-claude-context` to `./index.js` (`package.json` lines 6-7)
 **Execution** - Shebang line enables direct execution (`index.js` line 1: `#!/usr/bin/env node`)
-**Output Locations** - Supports multiple output modes: `~/.gemini/` (global), current directory (project), or alongside source files (origin)
+**Output Locations** - Supports multiple output modes: configurable global folder (default `~/.gemini/`), current directory (project), or alongside source files (origin)

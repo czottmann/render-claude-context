@@ -16,6 +16,7 @@ const { getOutputPath } = require("../fileProcessor");
  * @param {Object} options - Command options from Commander.js
  * @param {string} options.outputFolder - Output mode: "origin", "global", or "project"
  * @param {string} options.filename - Filename pattern to delete
+ * @param {string} options.globalFolder - Global folder for global output and special handling
  */
 function cleanupCommand(options) {
   try {
@@ -25,13 +26,18 @@ function cleanupCommand(options) {
       // Remove files in origin mode (next to each CLAUDE.md, with special ~/.claude/ case)
       const homeDir = os.homedir();
       const claudeFiles = collectClaudeFiles(process.cwd(), homeDir);
+      
+      // Handle tilde expansion for globalFolder
+      const expandedGlobalFolder = options.globalFolder.startsWith("~/") 
+        ? path.join(homeDir, options.globalFolder.slice(2))
+        : options.globalFolder;
 
       claudeFiles.forEach((claudeFile) => {
-        // Special case: if the CLAUDE.md file is in ~/.claude/, the output is in ~/.gemini/
+        // Special case: if the CLAUDE.md file is in ~/.claude/, the output is in configured global folder
         let outputPath;
         const claudePath = path.join(homeDir, ".claude", "CLAUDE.md");
         if (claudeFile === claudePath) {
-          outputPath = path.join(homeDir, ".gemini", options.filename);
+          outputPath = path.join(expandedGlobalFolder, options.filename);
         } else {
           const fileDir = path.dirname(claudeFile);
           outputPath = path.join(fileDir, options.filename);
@@ -44,7 +50,7 @@ function cleanupCommand(options) {
       });
     } else {
       // Remove file based on specified output folder mode
-      const outputPath = getOutputPath(options.outputFolder, options.filename);
+      const outputPath = getOutputPath(options.outputFolder, options.filename, process.cwd(), options.globalFolder);
       if (fs.existsSync(outputPath)) {
         fs.unlinkSync(outputPath);
         filesRemoved.push(outputPath);

@@ -56,6 +56,11 @@ Example:
       validateFilename,
       "CLAUDE-derived.md",
     )
+    .option(
+      "--global-folder <path>",
+      "Global folder for global output and special handling",
+      "~/.gemini/",
+    )
     .addHelpText(
       "after",
       `
@@ -119,6 +124,11 @@ Examples:
       "Name of context file to delete",
       validateFilename,
       "CLAUDE-derived.md",
+    )
+    .option(
+      "--global-folder <path>",
+      "Global folder for global output and special handling",
+      "~/.gemini/",
     )
     .addHelpText(
       "after",

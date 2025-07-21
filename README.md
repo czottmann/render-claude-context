@@ -51,6 +51,11 @@ render-claude-context create
 # Create with specific mode and filename
 render-claude-context create --output-folder global --filename my-context.md
 
+# Create but write the processed version of the Claude file found in 
+# `~/.claude/CLAUDE.md` to a custom global folder
+render-claude-context create --global-folder ~/.config/opencode/
+render-claude-context cleanup --global-folder ~/.config/opencode/
+
 # Gemini integration setup/teardown
 render-claude-context setup --filename my-context.md
 render-claude-context teardown --filename my-context.md

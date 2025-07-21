@@ -95,15 +95,21 @@ function writeToFile(content, outputPath) {
  * @param {string} outputFolder - Output mode: "global", "project", or "origin"
  * @param {string} filename - Output filename
  * @param {string} [startDir=process.cwd()] - Starting directory for project mode
+ * @param {string} [globalFolder="~/.gemini/"] - Global folder for global mode
  * @returns {string|null} Absolute output path, or null for origin mode
  * @throws {Error} If outputFolder mode is unknown
  */
-function getOutputPath(outputFolder, filename, startDir = process.cwd()) {
+function getOutputPath(outputFolder, filename, startDir = process.cwd(), globalFolder = "~/.gemini/") {
   const homeDir = os.homedir();
+  
+  // Handle tilde expansion for globalFolder
+  const expandedGlobalFolder = globalFolder.startsWith("~/") 
+    ? path.join(homeDir, globalFolder.slice(2))
+    : globalFolder;
 
   switch (outputFolder) {
     case "global":
-      return path.join(homeDir, ".gemini", filename);
+      return path.join(expandedGlobalFolder, filename);
     case "project":
       return path.join(startDir, filename);
     case "origin":
@@ -116,26 +122,32 @@ function getOutputPath(outputFolder, filename, startDir = process.cwd()) {
 
 /**
  * Handles origin mode output by creating individual files next to each CLAUDE.md.
- * Special case: ~/.claude/CLAUDE.md outputs to ~/.gemini/ instead.
+ * Special case: ~/.claude/CLAUDE.md outputs to configured global folder instead.
  * 
  * @param {string} filename - Output filename to use
  * @param {string} [startDir=process.cwd()] - Starting directory for file collection
+ * @param {string} [globalFolder="~/.gemini/"] - Global folder for special handling
  * @returns {string[]} Array of created file paths
  */
-function handleOriginMode(filename, startDir = process.cwd()) {
+function handleOriginMode(filename, startDir = process.cwd(), globalFolder = "~/.gemini/") {
   const homeDir = os.homedir();
   const claudeFiles = collectClaudeFiles(startDir, homeDir);
   const filesCreated = [];
+  
+  // Handle tilde expansion for globalFolder
+  const expandedGlobalFolder = globalFolder.startsWith("~/") 
+    ? path.join(homeDir, globalFolder.slice(2))
+    : globalFolder;
 
   claudeFiles.forEach((claudeFile) => {
     const fileDir = path.dirname(claudeFile);
     const content = generateContextContentForFile(claudeFile);
 
-    // Special case: if the CLAUDE.md file is in ~/.claude/, put output in ~/.gemini/
+    // Special case: if the CLAUDE.md file is in ~/.claude/, put output in configured global folder
     let outputPath;
     const claudePath = path.join(homeDir, ".claude", "CLAUDE.md");
     if (claudeFile === claudePath) {
-      outputPath = path.join(homeDir, ".gemini", filename);
+      outputPath = path.join(expandedGlobalFolder, filename);
     } else {
       outputPath = path.join(fileDir, filename);
     }

@@ -17,16 +17,17 @@ const {
  * @param {Object} options - Command options from Commander.js
  * @param {string} options.outputFolder - Output mode: "origin", "global", or "project"
  * @param {string} options.filename - Output filename to use
+ * @param {string} options.globalFolder - Global folder for global output and special handling
  */
 function createCommand(options) {
   try {
     if (options.outputFolder === "origin") {
-      const filesCreated = handleOriginMode(options.filename);
+      const filesCreated = handleOriginMode(options.filename, process.cwd(), options.globalFolder);
       console.log(`Created ${filesCreated.length} context file(s):`);
       filesCreated.forEach((file) => console.log(`  ${file}`));
     } else {
       const content = generateContextContent();
-      const outputPath = getOutputPath(options.outputFolder, options.filename);
+      const outputPath = getOutputPath(options.outputFolder, options.filename, process.cwd(), options.globalFolder);
       writeToFile(content, outputPath);
       console.log(`Created 1 context file(s):`);
       console.log(`  ${outputPath}`);

@@ -19,6 +19,7 @@ program
   .description("Generate processed context files with resolved imports")
   .option("--output-folder <mode>", "Output folder mode", "origin")
   .option("--filename <name>", "Output filename", validateFilename, "CLAUDE-derived.md")
+  .option("--global-folder <path>", "Global folder for global output", "~/.gemini/")
   .action(createCommand);
 ```
 
@@ -92,9 +93,12 @@ if (!settings.contextFileName) {
 
 **Output Path Resolution** - Mode-based path generation (`src/fileProcessor.js` lines 62-76):
 ```javascript
-function getOutputPath(outputFolder, filename, startDir = process.cwd()) {
+function getOutputPath(outputFolder, filename, startDir = process.cwd(), globalFolder = "~/.gemini/") {
+  const expandedGlobalFolder = globalFolder.startsWith("~/") 
+    ? path.join(homeDir, globalFolder.slice(2))
+    : globalFolder;
   switch (outputFolder) {
-    case "global": return path.join(homeDir, ".gemini", filename);
+    case "global": return path.join(expandedGlobalFolder, filename);
     case "project": return path.join(startDir, filename);
     case "origin": return null; // Handled differently
   }
