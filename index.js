@@ -6,6 +6,7 @@
  */
 
 const { Command } = require("commander");
+const { version } = require("./package.json");
 const createCommand = require("./src/commands/create");
 const setupCommand = require("./src/commands/setup");
 const teardownCommand = require("./src/commands/teardown");
@@ -40,7 +41,7 @@ Example:
   $ render-claude-context create; gemini; render-claude-context cleanup
   `,
     )
-    .version("1.0.0");
+    .version(version);
 
   program
     .command("create")
