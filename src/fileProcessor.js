@@ -105,6 +105,7 @@ function collectCommands() {
 /**
  * Generates complete context content by collecting and processing CLAUDE.md files.
  * Files are processed in reverse order with HTML comment separators.
+ * Commands from ~/.claude/commands/ are inserted after the global CLAUDE.md file.
  * 
  * @param {string} [startDir=process.cwd()] - Starting directory for file collection
  * @param {boolean} [addCommands=true] - Whether to append commands from ~/.claude/commands/
@@ -119,6 +120,9 @@ function generateContextContent(startDir = process.cwd(), addCommands = true) {
   const reversedContents = processedContents.reverse();
   let output = "";
 
+  // Collect commands once if needed
+  const commandsContent = addCommands ? collectCommands() : null;
+
   for (let i = 0; i < reversedContents.length; i++) {
     const { content, path: filePath } = reversedContents[i];
 
@@ -128,12 +132,9 @@ function generateContextContent(startDir = process.cwd(), addCommands = true) {
     }
 
     output += content;
-  }
 
-  // Append commands if requested and available
-  if (addCommands) {
-    const commandsContent = collectCommands();
-    if (commandsContent) {
+    // Insert commands after the first file (global ~/.claude/CLAUDE.md)
+    if (i === 0 && commandsContent) {
       output += commandsContent;
     }
   }
