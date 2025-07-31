@@ -1,6 +1,6 @@
 {
   "name": "render-claude-context",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A tool that collects CLAUDE.md files from directory hierarchy (project folder up to ~/.claude/), resolves/embeds their @-imports and commands, and generates processed context files can then be used as context for other agents.",
   "main": "index.js",
   "bin": {
