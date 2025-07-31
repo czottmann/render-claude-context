@@ -6,7 +6,7 @@ render-claude-context is a Node.js CLI tool that collects CLAUDE.md files hierar
 
 The modular architecture separates concerns across dedicated components: file collection via upward directory traversal (`src/fileCollector.js`), recursive import resolution with circular protection (`src/importResolver.js`), content generation with multiple output modes (`src/fileProcessor.js`), and command routing through a Commander.js CLI interface (`index.js`). Files are processed in reverse collection order with HTML comment separators, allowing higher-level configurations to take precedence.
 
-Supports seamless integration with AI tools like Gemini and opencode through target-specific global folder mapping, automatic command inclusion from `~/.claude/commands/`, and setup/teardown workflows for complete AI context management. Commands include create, cleanup, setup, and teardown for end-to-end context file lifecycle management.
+Supports seamless integration with AI tools like Crush, Gemini, and opencode through target-specific global folder mapping, automatic command inclusion from `~/.claude/commands/`, and setup/teardown workflows for complete AI context management. Commands include create, cleanup, setup, and teardown for end-to-end context file lifecycle management.
 
 ## Key Files
 
@@ -16,7 +16,7 @@ Supports seamless integration with AI tools like Gemini and opencode through tar
 **Import Resolution** - `src/importResolver.js` (lines 48-93): Recursive `@path` import processing with tilde expansion (`~/`), front matter stripping, and circular dependency protection
 **Content Generation** - `src/fileProcessor.js` (lines 114-143): Context assembly with HTML comment file separators, automatic command inclusion from `~/.claude/commands/`, and reverse-order processing
 **Command Implementation** - `src/commands/create.js` (lines 25-56): Output mode routing (origin/global/project) with target-specific global folder resolution and mutual exclusion validation
-**Target Configuration** - `src/utils/targets.js` (lines 13-32): AI tool configuration mapping for Gemini (`~/.gemini/`) and opencode (`~/.config/opencode/`) with settings paths
+**Target Configuration** - `src/utils/targets.js` (lines 13-39): AI tool configuration mapping for Crush (`~/.config/crush/`), Gemini (`~/.gemini/`), and opencode (`~/.config/opencode/`) with settings paths
 **Validation Utilities** - `src/utils/validation.js`, `src/utils/targetValidator.js`: Input validation for filenames and target names with error handling
 
 ## Technology Stack
@@ -35,5 +35,5 @@ Supports seamless integration with AI tools like Gemini and opencode through tar
 **Installation** - Global installation via `npm install -g .` creates `render-claude-context` command, or direct execution `node index.js` (`package.json` lines 6-7)
 **Binary Setup** - Shebang header for Unix-like systems (`index.js` line 1) with package.json bin mapping for cross-platform executable installation
 **Output Modes** - Three modes: global folder (configurable, default `~/.gemini/`), project folder (current working directory), or origin mode (individual files next to each CLAUDE.md)
-**AI Tool Integration** - Native support for Gemini (`~/.gemini/settings.json`) and opencode (`~/.config/opencode/opencode.json`) with automatic folder detection (`src/utils/targets.js`)
+**AI Tool Integration** - Native support for Crush (`~/.config/crush/crush.json`), Gemini (`~/.gemini/settings.json`), and opencode (`~/.config/opencode/opencode.json`) with automatic folder detection (`src/utils/targets.js`)
 **Target Configuration** - `--target` option automatically sets appropriate global folders and settings paths for supported AI tools, with mutual exclusion validation for `--global-folder`

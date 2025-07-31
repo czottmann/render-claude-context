@@ -43,7 +43,7 @@ The core data flow walks up the directory tree from the current working director
 
 **Utility Modules** - src/utils/*.js
 - validation.js: `validateFilename()` with security checks for filesystem safety
-- targetValidator.js: `validateTarget()` for supported AI tool names (gemini, opencode)
+- targetValidator.js: `validateTarget()` for supported AI tool names (crush, gemini, opencode)
 - targets.js: `getTargetGlobalFolder()` and `getDefaultTarget()` for AI tool configuration mapping
 
 ## Key Files

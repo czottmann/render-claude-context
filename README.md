@@ -2,11 +2,11 @@
 
 # render-claude-context
 
-Tired of maintaining several sets of context and rules for Claude Code, opencode, and Gemini CLI?
+Tired of maintaining several sets of context and rules for Claude Code, Crush, Gemini CLI, and opencode?
 
 This node.js CLI tool processes `CLAUDE.md` files with hierarchical collection and recursive `@`-import resolution. Walks directory tree from current to `~/.claude/`, collecting all `CLAUDE.md` files and processing them with file import resolution. Saves processed context files with resolved imports next to the original `CLAUDE.md` files or in a specific location (configurable).
 
-These files can then be used as context for Gemini or opencode.
+These files can then be used as context for [Crush](https://github.com/charmbracelet/crush), [Gemini](https://github.com/google-gemini/gemini-cli), or [opencode](https://github.com/sst/opencode).
 
 ## But why?
 
@@ -18,7 +18,7 @@ Claude Code uses `CLAUDE.md` files which provide context for the tool. From [Ant
 > Any parent of the directory where you run `claude`. This is most useful for monorepos, where you might run claude from `root/foo`, and have `CLAUDE.md` files in both `root/CLAUDE.md` and `root/foo/CLAUDE.md`. Both of these will be pulled into context automatically […]
 > Your home folder (`~/.claude/CLAUDE.md`), which applies it to all your *claude* sessions
 
-Other agentic tools, like **Gemini CLI** or **opencode**, work mostly the same way, but their expected file names are different (`GEMINI.md`, `AGENTS.md` etc.), and their home folder is not `~/.claude/`. Sure, I can make them read my `CLAUDE.md` files by adding that name to their settings (see [Gemini's docs about `contextFileName`](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md#available-settings-in-settingsjson) or [opencode's docs on `instructions`](https://opencode.ai/docs/config/#instructions)), but that helps only partially – because these tools differ in one big way:
+Other agentic tools, like **Crush**, **Gemini CLI**, or **opencode**, work mostly the same way, but their expected file names are different (`GEMINI.md`, `AGENTS.md` etc.), and their home folder is not `~/.claude/`. Sure, I can make them read my `CLAUDE.md` files by adding that name to their settings (see [Gemini's docs about `contextFileName`](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md#available-settings-in-settingsjson) or [opencode's docs on `instructions`](https://opencode.ai/docs/config/#instructions)), but that helps only partially – because these tools differ in one big way:
 
 They all read rule files in different ways.
 
@@ -26,7 +26,7 @@ For example, both Claude Code and Gemini can `@`-import other files, meaning the
 
 But I switch agents quite a bit, and it's cumbersome to copy and paste my rules and guidelines around.
 
-So in order to streamline my dev environment, I decided to keep only my `CLAUDE.md`'s in order, and make Gemini and opencode play ball. **Now I only have to set up context once (for Claude) – and have the other agents reuse it without me having to jump through hoops.**
+So in order to streamline my dev environment, I decided to keep only my `CLAUDE.md`'s in order, and make Crush, Gemini, and opencode play ball. **Now I only have to set up context once (for Claude) – and have the other agents reuse it without me having to jump through hoops.**
 
 ## Showcase
 

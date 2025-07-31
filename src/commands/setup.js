@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { getTargetConfig } = require("../utils/targets");
+const { getNestedProperty, setNestedProperty, hasNestedProperty } = require("../utils/nestedProperties");
 
 /**
  * Adds filename to target AI tool settings array for automatic context loading.
@@ -27,15 +28,17 @@ function setupCommand(options) {
     }
 
     // Ensure context key is always an array
-    if (!settings[contextKey]) {
-      settings[contextKey] = [];
-    } else if (typeof settings[contextKey] === "string") {
-      settings[contextKey] = [settings[contextKey]];
+    let contextArray = getNestedProperty(settings, contextKey);
+    if (!contextArray) {
+      contextArray = [];
+    } else if (typeof contextArray === "string") {
+      contextArray = [contextArray];
     }
 
     // Always add the specified filename to settings
-    if (!settings[contextKey].includes(options.filename)) {
-      settings[contextKey].push(options.filename);
+    if (!contextArray.includes(options.filename)) {
+      contextArray.push(options.filename);
+      setNestedProperty(settings, contextKey, contextArray);
 
       const settingsDir = path.dirname(settingsPath);
       if (!fs.existsSync(settingsDir)) {

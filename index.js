@@ -60,7 +60,7 @@ Example:
     )
     .option(
       "--target <name>",
-      "Target AI tool (gemini, opencode) - sets global folder automatically",
+      "Target AI tool (crush, gemini, opencode) - sets global folder automatically",
       validateTarget,
       "gemini",
     )
@@ -106,7 +106,7 @@ Examples:
     )
     .option(
       "--target <name>",
-      "Target AI tool (gemini, opencode) - sets global folder automatically",
+      "Target AI tool (crush, gemini, opencode) - sets global folder automatically",
       validateTarget,
       "gemini",
     )
@@ -134,7 +134,7 @@ Examples:
     )
     .option(
       "--target <name>",
-      "Target AI tool (gemini, opencode)",
+      "Target AI tool (crush, gemini, opencode)",
       validateTarget,
       getDefaultTarget(),
     )
@@ -162,7 +162,7 @@ Examples:
     )
     .option(
       "--target <name>",
-      "Target AI tool (gemini, opencode)",
+      "Target AI tool (crush, gemini, opencode)",
       validateTarget,
       getDefaultTarget(),
     )

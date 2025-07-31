@@ -8,7 +8,9 @@
       "Bash(npm run test:*)",
       "Bash(npm config get:*)",
       "Bash(npm whoami:*)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(cat:*)",
+      "Bash(npm pack:*)"
     ],
     "deny": []
   }

@@ -52,7 +52,7 @@ File organization emphasizes separation between CLI orchestration (index.js), co
 
 **Utility Modules** - `src/utils/`
 - `validation.js` - Filename validation and sanitization
-- `targetValidator.js` - AI tool target validation (gemini/opencode)
+- `targetValidator.js` - AI tool target validation (crush/gemini/opencode)
 - `targets.js` - Target configuration and global folder mapping
 
 ## Build System

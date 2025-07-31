@@ -30,12 +30,19 @@ const TARGET_CONFIGS = {
     description: "opencode AI",
     globalFolder: "~/.config/opencode/",
   },
+  crush: {
+    name: "Crush",
+    settingsPath: path.join(os.homedir(), ".config", "crush", "crush.json"),
+    contextKey: "options.context_paths",
+    description: "Crush AI",
+    globalFolder: "~/.config/crush/",
+  },
 };
 
 /**
  * Gets the configuration for a specific target.
  *
- * @param {string} targetName - Name of the target (e.g., "gemini", "opencode")
+ * @param {string} targetName - Name of the target (e.g., "crush", "gemini", "opencode")
  * @returns {Object} Target configuration object
  * @throws {Error} If target is not supported
  */

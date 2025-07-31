@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { getTargetConfig } = require("../utils/targets");
+const { getNestedProperty, setNestedProperty, hasNestedProperty } = require("../utils/nestedProperties");
 
 /**
  * Removes filename from target AI tool settings array to stop auto-loading.
@@ -34,24 +35,26 @@ function teardownCommand(options) {
       process.exit(1);
     }
 
-    if (!settings[contextKey]) {
+    let contextArray = getNestedProperty(settings, contextKey);
+    if (!contextArray) {
       console.log(`No ${contextKey} found in ${name} settings`);
       return;
     }
 
     // Ensure context key is always an array
-    if (typeof settings[contextKey] === "string") {
-      settings[contextKey] = [settings[contextKey]];
+    if (typeof contextArray === "string") {
+      contextArray = [contextArray];
     }
 
-    if (!Array.isArray(settings[contextKey])) {
+    if (!Array.isArray(contextArray)) {
       console.log(`Invalid ${contextKey} format in ${name} settings`);
       return;
     }
 
-    const index = settings[contextKey].indexOf(options.filename);
+    const index = contextArray.indexOf(options.filename);
     if (index !== -1) {
-      settings[contextKey].splice(index, 1);
+      contextArray.splice(index, 1);
+      setNestedProperty(settings, contextKey, contextArray);
 
       fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
       console.log(
